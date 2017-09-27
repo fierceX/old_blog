@@ -4,8 +4,7 @@ build:
     - arjen/hugo-build:
         version: "HEAD"
         prod_branches: source
-        dev_flags: -D -F
-
+        flags: --buildDrafts=true
 deploy:
   steps:
     - install-packages:
