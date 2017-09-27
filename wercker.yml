@@ -13,5 +13,4 @@ deploy:
     - ysqi/git-push@0.7.15:
         gh_oauth: $GIT_TOKEN
         branch: master
-        domain: FierceX.github.io
         basedir: public
