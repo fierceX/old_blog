@@ -11,7 +11,7 @@ deploy:
     - install-packages:
         packages: git ssh-client
     - ysqi/git-push@0.7.15:
-        token: $GIT_TOKEN
+        gh_oauth: $GIT_TOKEN
         branch: master
         domain: FierceX.github.io
         basedir: public
