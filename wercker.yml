@@ -10,7 +10,7 @@ deploy:
   steps:
     - install-packages:
         packages: git ssh-client
-    - lukevivier/master:
+    - lukevivier/master@0.2.1:
         token: $GIT_TOKEN
         domain: FierceX.github.io
         basedir: public
