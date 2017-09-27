@@ -1,0 +1,16 @@
+box: debian
+build:
+  steps:
+    - arjen/hugo-build:
+        version: "HEAD"
+        prod_branches: source
+        dev_flags: -D -F
+
+deploy:
+  steps:
+    - install-packages:
+        packages: git ssh-client
+    - lukevivier/master:
+        token: $GIT_TOKEN
+        domain: FierceX.github.io
+        basedir: public
