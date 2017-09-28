@@ -1,6 +1,6 @@
 ---
 title: "Gentoo安装笔记"
-date: 2016-09-27
+date: 2015-09-05
 draft: true
 ---
 ## 准备工作
