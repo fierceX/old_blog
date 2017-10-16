@@ -184,26 +184,24 @@ for epoch in range(5):
     
 
 ## 6. 保存成Symbol格式的网络和参数（重点）
-要注意保存网络参数的时候，需要`net.collect_params().save()`这样保存，而不是`net.save_params()`保存
+~~要注意保存网络参数的时候，需要`net.collect_params().save()`这样保存，而不是`net.save_params()`保存~~  
+最新版的mxnet已经有可以导出到symbol格式下的接口了。需要mxnet版本在20171015以上  
+下面示例代码也已经改成新版的保存，加载方式
 
 
 ```python
-net.save_params('Gluon_FashionMNIST.data')  # 将网络参数保存成Gluon模型的格式
-x = mx.sym.var('data')                      # 定义输入数据 'data'
-y = net(x）                                 # 将sym定义的输入输进网络，获取sym格式的网络
-y.save('Gluon_FashionMNIST.json')           # 保存symbol格式的网络
-net.collect_params().save('Gluon_FashionMNIST.params')    # 保存网络参数
+#新版本的保存方式
+net.export('Gluon_FashionMNIST')
 ```
 
 ## 7. 使用Symbol加载网络并绑定
 
 
 ```python
-symnet = mx.symbol.load('Gluon_FashionMNIST.json')
-params = nd.load('Gluon_FashionMNIST.params')
+symnet = mx.symbol.load('Gluon_FashionMNIST-symbol.json')
 mod = mx.mod.Module(symbol=symnet, context=mx.cpu())
 mod.bind(data_shapes=[('data', (1, 1, 28, 28))])
-mod.set_params(arg_params=params,aux_params={})
+mod.load_params('Gluon_FashionMNIST-0000.params')
 Batch = namedtuple('Batch', ['data'])
 ```
 
