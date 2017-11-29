@@ -2,7 +2,7 @@ box: debian
 build:
   steps:
     - arjen/hugo-build:
-        version: "1.24.0"
+        version: "1.21.1"
         prod_branches: source
         flags: --buildDrafts=true
 deploy:
