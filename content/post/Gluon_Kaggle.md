@@ -88,7 +88,6 @@ reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir,
 导入各种包
 ``` python
 from mxnet import gluon
-from mxnet.gluon.data import vision
 from mxnet import image
 import numpy as np
 from mxnet import nd
@@ -141,13 +140,13 @@ def transform_test(data, label):
 ``` python
 batch_size = 32
 
-train_ds = vision.ImageFolderDataset(input_str + train_dir, flag=1,
+train_ds = gluon.data.vision.ImageFolderDataset(input_str + train_dir, flag=1,
                                       transform=transform_train)
-valid_ds = vision.ImageFolderDataset(input_str + valid_dir, flag=1,
+valid_ds = gluon.data.vision.ImageFolderDataset(input_str + valid_dir, flag=1,
                                       transform=transform_test)
-train_valid_ds = vision.ImageFolderDataset(input_str + train_valid_dir,
+train_valid_ds = gluon.data.vision.ImageFolderDataset(input_str + train_valid_dir,
                                            flag=1, transform=transform_train)
-test_ds = vision.ImageFolderDataset(input_str + test_dir, flag=1,
+test_ds = gluon.data.vision.ImageFolderDataset(input_str + test_dir, flag=1,
                                       transform=transform_test)
 
 loader = gluon.data.DataLoader
@@ -161,11 +160,8 @@ train_valid_data = loader(train_valid_ds, batch_size, shuffle=True,
 模型融合这里使用两个模型，分别是`resnet152_v1`和`inception_v3`  
 导入各种包
 ``` python
-from mxnet import gluon
 from mxnet import init
-from mxnet.gluon.model_zoo import vision
 from mxnet.gluon import nn
-from mxnet import image
 ```
 ### 2.1 双模型合并
 为了让两个网络合并，就需要自定义一个合并两个网络的层。  
@@ -186,11 +182,11 @@ class  ConcatNet(nn.HybridBlock):
 这样就可以构造出一个特征提取层
 ``` python
 def get_features2(ctx):
-    resnet = vision.inception_v3(pretrained=True,ctx=ctx)
+    resnet = gluon.model_zoo.vision.inception_v3(pretrained=True,ctx=ctx)
     return resnet.features
 
 def get_features1(ctx):
-    resnet = vision.resnet152_v1(pretrained=True,ctx=ctx)
+    resnet = gluon.model_zoo.vision.resnet152_v1(pretrained=True,ctx=ctx)
     return resnet.features
 
 def get_features(ctx):
@@ -238,15 +234,11 @@ def get_net(ParamsName,ctx):
 导入各种包
 ``` python
 from tqdm import tqdm
-import os
 import datetime
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from mxnet import autograd
-from mxnet import gluon
-from mxnet import nd
-import pandas as pd
 import mxnet as mx
 import pickle
 ```
