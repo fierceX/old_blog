@@ -411,7 +411,7 @@ SaveTest(test_data,net,mx.gpu(),csvname,ids_synsets[0],ids_synsets[1])
 最后就可以把输出的`csv`文件提交到kaggle上了。  
 使用kaggle提供的数据，最后拿到了`0.27760`的分数。如果更进一步，那就是用[Stanford dogs dataset](http://vision.stanford.edu/aditya86/ImageNetDogs/)数据集。
 ## 感悟
-首先这次的kaggle比赛算是我第一次结束正式的图像分类比赛，在gluon论坛里也学到了好多东西。  
+首先这次的kaggle比赛算是我第一次结束正式的图像分类比赛，在[Gluon](https://discuss.gluon.ai/)论坛里也学到了好多东西。   
 使用迁移学习的话，那前期就先把数据过一遍特征网络，省时省力。如需要训练前面特征网络的时候，再连起来训练就可以了。  
 大多数图像分类都可以使用预训练模型进行迁移训练，因为经过ImageNet的模型都是老司机了，见多识广。  
 使用预训练模型进行迁移学习，那么数据处理要和原模型的一致，比如图像尺寸，归一化等。  
