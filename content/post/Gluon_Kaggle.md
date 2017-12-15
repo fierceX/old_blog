@@ -179,38 +179,20 @@ class  ConcatNet(nn.HybridBlock):
     def hybrid_forward(self,F,x1,x2):
         return F.concat(*[self.net1(x1),self.net2(x2)])
 ``` 
-这样就可以构造出一个特征提取层
-``` python
-def get_features2(ctx):
-    resnet = gluon.model_zoo.vision.inception_v3(pretrained=True,ctx=ctx)
-    return resnet.features
-
-def get_features1(ctx):
-    resnet = gluon.model_zoo.vision.resnet152_v1(pretrained=True,ctx=ctx)
-    return resnet.features
-
-def get_features(ctx):
-    features1 = get_features1(ctx)
-    features2 = get_features2(ctx)
-    net = ConcatNet(features1,features2)
-    return net
-```
-### 2.3 输出层
+### 2.2 输出层
 输出层比较简单，两层全链接，中间加了一层`Dropout`
 ``` python
-def get_output(ctx,ParamsName=None):
-    net = nn.HybridSequential()
-    with net.name_scope():
-        net.add(nn.Dense(256, activation="relu"))
-        net.add(nn.Dropout(.7))
-        net.add(nn.Dense(120))
-    if ParamsName is not None:
-        net.collect_params().load(ParamsName,ctx)
-    else:
-        net.initialize(init = init.Xavier(),ctx=ctx)
-return net
+net = nn.HybridSequential("output")
+with net.name_scope():
+    net.add(nn.Dense(256,activation='relu'))
+    net.add(nn.Dropout(.5))
+    net.add(nn.Dense(120))
+if ParamsName is not None:
+    net.collect_params().load(ParamsName,ctx)
+else:
+    net.initialize(init = init.Xavier(),ctx=ctx)
 ```
-### 2.4 连接成一个网络
+### 2.3 连接成一个网络
 有了可以合并两个网络的层，还有一个输出层，那么我们需要将这两个网络连接起来。
 ``` python
 class  OneNet(nn.HybridBlock):
@@ -221,13 +203,27 @@ class  OneNet(nn.HybridBlock):
     def hybrid_forward(self,F,x1,x2):
         return self.output(self.features(x1,x2))
 ```
-这样就可以构造出一个完整的网络
+### 2.4 构建完整网络
+
 ``` python
-def get_net(ParamsName,ctx):
-    output = get_output(ctx,ParamsName)
-    features = get_features(ctx)
-    net = OneNet(features,output)
-    return net
+class Net():
+    def __init__(self,ctx,nameparams=None):
+        inception = vision.inception_v3(pretrained=True,ctx=ctx).features
+        resnet = vision.resnet152_v1(pretrained=True,ctx=ctx).features
+        self.features = ConcatNet(resnet,inception)
+        self.output = self.__get_output(ctx,nameparams)
+        self.net = OneNet(self.features,self.output)
+    def __get_output(self,ctx,ParamsName=None):
+        net = nn.HybridSequential("output")
+        with net.name_scope():
+            net.add(nn.Dense(256,activation='relu'))
+            net.add(nn.Dropout(.5))
+            net.add(nn.Dense(120))
+        if ParamsName is not None:
+            net.collect_params().load(ParamsName,ctx)
+        else:
+            net.initialize(init = init.Xavier(),ctx=ctx)
+        return net
 ```
 ## 3. 训练
 有着前面的准备，就可以开始干活了。首先第一步是提取特征，因为是迁移学习，会锁定特征层。那干脆让所有训练数据都过一遍特征网络，这样既节约时间，有节省显存。何乐而不为。  
@@ -245,7 +241,7 @@ import pickle
 ### 3.1 提取特征
 提取特征我们使用上面定义好的特征提取网络
 ``` python
-net = get_features(mx.gpu())
+net = Net(mx.gpu()).features
 net.hybridize()
 
 def SaveNd(data,net,name):
@@ -361,12 +357,12 @@ def train(net, train_data, valid_data, num_epochs, lr, wd, ctx):
 ``` python
 softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
 ctx = mx.gpu()
-net = get_output(ctx)
+net = Net(ctx).output
 net.hybridize()
 
 train(net, train_data,valid_data, num_epochs, learning_rate, weight_decay, ctx)
 ```
-## 输出测试结果
+## 4. 输出测试结果
 训练之后，就可以把测试集的数据跑出来了  
 首先定义一些变量  
 ``` python
@@ -396,16 +392,20 @@ def SaveTest(test_data,net,ctx,name,ids,synsets):
 ```
 开跑
 ``` python
-net = get_net(netparams,mx.gpu())
+net = Net(mx.gpu(),netparams).net
 net.hybridize()
 SaveTest(test_data,net,mx.gpu(),csvname,ids_synsets[0],ids_synsets[1])
 ```
 最后就可以把输出的`csv`文件提交到kaggle上了。  
 使用kaggle提供的数据，最后拿到了`0.27760`的分数。如果更进一步，那就是用[Stanford dogs dataset](http://vision.stanford.edu/aditya86/ImageNetDogs/)数据集。
 ## 感悟
-首先这次的kaggle比赛算是我第一次结束正式的图像分类比赛，在[Gluon](https://discuss.gluon.ai/)论坛里也学到了好多东西。   
-使用迁移学习的话，那前期就先把数据过一遍特征网络，省时省力。如需要训练前面特征网络的时候，再连起来训练就可以了。  
-大多数图像分类都可以使用预训练模型进行迁移训练，因为经过ImageNet的模型都是老司机了，见多识广。  
-使用预训练模型进行迁移学习，那么数据处理要和原模型的一致，比如图像尺寸，归一化等。  
+首先这次的kaggle比赛算是我第一次接触正式的图像分类比赛，在[Gluon](https://discuss.gluon.ai/)论坛里也学到了好多东西。   
+- 使用迁移学习的话，那前期就先把数据过一遍特征网络，省时省力。如需要训练前面特征网络的时候，再连起来训练就可以了。  
+    - 但是这样有个弊端，就是如果在载入数据集的时候进行了随机图像增强，那这样做增强的图像就增强了，没增强的就没增强，没有再随机的可能了。如果还想用这种先跑预训练网络的方式。
+    - 那可以走另一个方法，把所有的图像进行图像增强后存在磁盘，这样再跑预训练网络得到的就是没增强和增强过的集合，缺点是需要占磁盘空间，而且过预训练网络会很慢，比较图像数据翻了几倍，好处是可以用这种方式让配置不高的机器训练。  
+
+- 大多数图像分类都可以使用预训练模型进行迁移训练，因为经过ImageNet的模型都是老司机了，见多识广。  
+- 使用预训练模型进行迁移学习，那么数据处理要和原模型的一致，比如图像尺寸，归一化等。  
+
 最后感谢[沐神的直播课程](https://discuss.gluon.ai/c/5-category)，和论坛里的大神[杨培文](https://github.com/ypwhs/DogBreed_gluon)提供的思路和借鉴代码。  
 完整代码: [https://github.com/fierceX/Dog-Breed-Identification-Gluon](https://github.com/fierceX/Dog-Breed-Identification-Gluon)
