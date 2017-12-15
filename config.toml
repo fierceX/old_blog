@@ -1,4 +1,4 @@
-baseurl = "https://FierceX.github.io"
+baseurl = "https://FierceX.github.io/"
 title = "FierceX"
 theme = "ghostwriter"
 languageCode = "zh-cn"
@@ -27,6 +27,8 @@ copyright = "FierceX"
     shareGooglePlus = false
     shareLinkedIn = false
     #dateFormat = "Mon, Jan 2, 2006"
+    highlightJsUrl = ""
+    highlightJsLocalUrl = ""
 
 [Permalinks]
     post = "/:year/:month/:day/:filename/"
