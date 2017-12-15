@@ -2,6 +2,7 @@ box: ubuntu
 build:
   steps:
     - arjen/hugo-build@1.21.0:
+        version: "0.28"
         prod_branches: source
         flags: -D
 deploy:
