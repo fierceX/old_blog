@@ -3,7 +3,7 @@ build:
   steps:
     - arjen/hugo-build@1.21.0:
         prod_branches: source
-        dev_flags: -D -F
+        dev_flags: -D
 deploy:
   steps:
     - install-packages:
