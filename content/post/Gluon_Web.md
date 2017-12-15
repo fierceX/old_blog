@@ -188,6 +188,6 @@ if __name__ == '__main__':
 ## 4. 运行看看效果
 运行`app.py`文件，看看效果  
 
-![jpg](../../img/cluon_web.jpg)
+![jpg](/img/cluon_web.jpg)
 
 完整代码: [https://github.com/fierceX/Dog-Breed-Identification-Gluon](https://github.com/fierceX/Dog-Breed-Identification-Gluon)

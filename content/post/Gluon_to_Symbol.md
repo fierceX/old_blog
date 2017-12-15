@@ -73,7 +73,7 @@ print(get_text_labels(label))
 ```
 
 
-![png](../../img/output_9_0.png)
+![png](/img/output_9_0.png)
 
 
     ['coat', 'coat', 'sandal', 'coat', 'bag', 't-shirt', 'bag', 'ankle boot', 't-shirt', 'pullover', 'pullover', 'ankle boot', 'dress,', 'dress,']
@@ -230,7 +230,7 @@ print('true labels:',get_text_labels([label]))
 ```
 
 
-![png](../../img/output_25_0.png)
+![png](/img/output_25_0.png)
 
 
     predicted labels: ['pullover']
