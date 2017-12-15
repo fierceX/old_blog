@@ -13,7 +13,7 @@ copyright = "FierceX"
 
 [Params]
     intro = true
-    headline = "FierceX"
+    headline = "夏鲁豫"
     description = "路漫漫其修远兮，吾将上下而求索"
     github = "https://github.com/fiercex"
     #linkedin = "https://linkedin.com/in/XXX/"
@@ -31,7 +31,8 @@ copyright = "FierceX"
     highlightJsLocalUrl = ""
 
 [Permalinks]
-    post = "/:year/:month/:day/:filename/"
+    #post = "/:year/:month/:day/:filename/"
+    post = "/post/:filename/"
 
 [[menu.main]]
     name = "Blog"
