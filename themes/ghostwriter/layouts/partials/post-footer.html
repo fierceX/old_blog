@@ -9,7 +9,10 @@
             {{ end }}
         </p>
     {{ end}}
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script> 
     <div class="share">
         {{ if or (not (isset .Site.Params "sharetwitter")) .Site.Params.shareTwitter }}
             <a class="icon-twitter" href="https://twitter.com/share?text={{ .Title }}&url={{ .Permalink }}"
