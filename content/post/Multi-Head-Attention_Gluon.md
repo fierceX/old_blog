@@ -1,5 +1,5 @@
 ---
-title: "Hulti Head Attention的Gluon实现"
+title: "使用Gluon实现Hulti Head Attention做情感分析"
 date: 2018-06-03
 draft: true
 markup: mmark
@@ -146,6 +146,8 @@ class Position_Embedding(nn.HybridBlock):
         return position_ij + x
 ```
 ## 3. 使用这个Hulti Head Attention来进行情感分析
+数据源是文本分类里的MNIST，IMDB的影评，通过影评来分辨是正面还是负面的情绪。  
+[http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz](http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz)  
 ### 3.1 导入各种包
 ``` python
 from collections import Counter
