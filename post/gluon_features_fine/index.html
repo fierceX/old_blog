@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>使用MxNet新接口Gluon提供的预训练模型进行微调 &middot; FierceX</title>
+        <meta name="description" content="1. 导入各种包 from mxnet import gluon import mxnet as mx from mxnet.gluon import nn from mxnet import ndarray as nd import matplotlib.pyplot as plt import cv2 from mxnet import image from mxnet import autograd  2. 导入数据 我使用cifar10这个数据集，使用gluon自带的模块下载到本地并且为了配合后面的网络，我将大小调整到224*224
+def transform(data, label): data = image.imresize(data, 224, 224) return data.astype(&#39;float32&#39;), label.astype(&#39;float32&#39;) cifar10_train = gluon.data.vision.CIFAR10(root=&#39;./&#39;,train=True, transform=transform) cifar10_test = gluon.data.vision.CIFAR10(root=&#39;./&#39;,train=False, transform=transform)  batch_size = 64 train_data = gluon.data.DataLoader(cifar10_train, batch_size, shuffle=True) test_data = gluon.data.DataLoader(cifar10_test, batch_size, shuffle=False)  3.">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.28" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="使用MxNet新接口Gluon提供的预训练模型进行微调">
+<meta property="og:description" content="1. 导入各种包 from mxnet import gluon import mxnet as mx from mxnet.gluon import nn from mxnet import ndarray as nd import matplotlib.pyplot as plt import cv2 from mxnet import image from mxnet import autograd  2. 导入数据 我使用cifar10这个数据集，使用gluon自带的模块下载到本地并且为了配合后面的网络，我将大小调整到224*224
+def transform(data, label): data = image.imresize(data, 224, 224) return data.astype(&#39;float32&#39;), label.astype(&#39;float32&#39;) cifar10_train = gluon.data.vision.CIFAR10(root=&#39;./&#39;,train=True, transform=transform) cifar10_test = gluon.data.vision.CIFAR10(root=&#39;./&#39;,train=False, transform=transform)  batch_size = 64 train_data = gluon.data.DataLoader(cifar10_train, batch_size, shuffle=True) test_data = gluon.data.DataLoader(cifar10_test, batch_size, shuffle=False)  3.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://FierceX.github.io/post/gluon_features_fine/">
+        <link rel="stylesheet" href="https://FierceX.github.io/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                            </h1>
+                        
+                        <a class="button-square" href="https://FierceX.github.io/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/fiercex">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Email" title="Email" href="mailto:mailto:FierceX@outlook.com">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="/about/">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">使用MxNet新接口Gluon提供的预训练模型进行微调</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2017-09-27" itemprop="datePublished">Wed, Sep 27, 2017</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://FierceX.github.io" itemprop="url" rel="author">FierceX</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<h2 id="1-导入各种包">1. 导入各种包</h2>
+
+<pre><code class="language-python">from mxnet import gluon
+import mxnet as mx
+from mxnet.gluon import nn
+from mxnet import ndarray as nd
+import matplotlib.pyplot as plt
+import cv2
+from mxnet import image
+from mxnet import autograd
+</code></pre>
+
+<h2 id="2-导入数据">2. 导入数据</h2>
+
+<p>我使用cifar10这个数据集，使用gluon自带的模块下载到本地并且为了配合后面的网络，我将大小调整到224*224</p>
+
+<pre><code class="language-python">def transform(data, label):
+    data = image.imresize(data, 224, 224)
+    return data.astype('float32'), label.astype('float32')
+cifar10_train = gluon.data.vision.CIFAR10(root='./',train=True, transform=transform)
+cifar10_test = gluon.data.vision.CIFAR10(root='./',train=False, transform=transform)
+</code></pre>
+
+<pre><code class="language-python">batch_size = 64
+train_data = gluon.data.DataLoader(cifar10_train, batch_size, shuffle=True)
+test_data = gluon.data.DataLoader(cifar10_test, batch_size, shuffle=False)
+</code></pre>
+
+<h2 id="3-加载预训练模型">3. 加载预训练模型</h2>
+
+<p>gluon提供的很多预训练模型，我选择一个简单的模型AlexNet<br />
+首先下载AlexNet模型和模型参数<br />
+使用下面的代码会获取AlexNet的模型并且加载预训练好的模型参数，但是鉴于网络的原因，我提前下好了</p>
+
+<pre><code class="language-python">alexnet = mx.gluon.model_zoo.vision.alexnet(pretrained=True)#如果pretrained值为True，则会下载预训练参数，否则是空模型
+</code></pre>
+
+<p>获取模型并从本地加载参数</p>
+
+<pre><code class="language-python">alexnet = mx.gluon.model_zoo.vision.alexnet()
+alexnet.load_params('alexnet-44335d1f.params',ctx=mx.gpu())
+</code></pre>
+
+<p>看下AlexNet网络结构，发现分为两部分，features,classifier,而features正好是需要的</p>
+
+<pre><code class="language-python">print(alexnet)
+</code></pre>
+
+<pre><code>AlexNet(
+  (features): HybridSequential(
+    (0): Conv2D(64, kernel_size=(11, 11), stride=(4, 4), padding=(2, 2))
+    (1): MaxPool2D(size=(3, 3), stride=(2, 2), padding=(0, 0), ceil_mode=False)
+    (2): Conv2D(192, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2))
+    (3): MaxPool2D(size=(3, 3), stride=(2, 2), padding=(0, 0), ceil_mode=False)
+    (4): Conv2D(384, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (5): Conv2D(256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (6): Conv2D(256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (7): MaxPool2D(size=(3, 3), stride=(2, 2), padding=(0, 0), ceil_mode=False)
+    (8): Flatten
+  )
+  (classifier): HybridSequential(
+    (0): Dense(4096, Activation(relu))
+    (1): Dropout(p = 0.5)
+    (2): Dense(4096, Activation(relu))
+    (3): Dropout(p = 0.5)
+    (4): Dense(1000, linear)
+  )
+)
+</code></pre>
+
+<h2 id="4-组合新的网络">4. 组合新的网络</h2>
+
+<p>截取想要的features，并且固定参数。这样防止训练的时候把预训练好的参数给搞坏了</p>
+
+<pre><code class="language-python">featuresnet = alexnet.features
+for _, w in featuresnet.collect_params().items():
+    w.grad_req = 'null'
+</code></pre>
+
+<p>自己定义后面的网络，因为数据集是10类，就把最后的输出从1000改成了10。</p>
+
+<pre><code class="language-python">def Classifier():
+    net = nn.HybridSequential()
+    net.add(nn.Dense(4096, activation=&quot;relu&quot;))
+    net.add(nn.Dropout(.5))
+    net.add(nn.Dense(4096, activation=&quot;relu&quot;))
+    net.add(nn.Dropout(.5))
+    net.add(nn.Dense(10))
+    return net
+</code></pre>
+
+<p>接着需要把两部分组合起来，并且对第二部分机进行初始化</p>
+
+<pre><code class="language-python">net = nn.HybridSequential()
+with net.name_scope():
+    net.add(featuresnet)
+    net.add(Classifier())
+    net[1].collect_params().initialize(init=mx.init.Xavier(),ctx=mx.gpu())
+net.hybridize()
+</code></pre>
+
+<h2 id="5-训练">5. 训练</h2>
+
+<p>最后就是训练了，看看效果如何</p>
+
+<pre><code class="language-python">#定义准确率函数
+def accuracy(output, label):
+    return nd.mean(output.argmax(axis=1)==label).asscalar()
+def evaluate_accuracy(data_iterator, net, ctx=mx.gpu()):
+    acc = 0.
+    for data, label in data_iterator:
+        data = data.transpose([0,3,1,2])
+        data = data/255
+        output = net(data.as_in_context(ctx))
+        acc += accuracy(output, label.as_in_context(ctx))
+    return acc / len(data_iterator)
+</code></pre>
+
+<pre><code class="language-python">softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+trainer = gluon.Trainer(
+    net.collect_params(), 'sgd', {'learning_rate': 0.01})
+</code></pre>
+
+<pre><code class="language-python">for epoch in range(1):
+    train_loss = 0.
+    train_acc = 0.
+    test_acc = 0.
+    for data, label in train_data:
+        label = label.as_in_context(mx.gpu())
+        data = data.transpose([0,3,1,2])
+        data = data/255
+        with autograd.record():
+            output = net(data.as_in_context(mx.gpu()))
+            loss = softmax_cross_entropy(output, label)
+        loss.backward()
+        trainer.step(batch_size)
+
+        train_loss += nd.mean(loss).asscalar()
+        train_acc += accuracy(output, label)
+    test_acc = evaluate_accuracy(test_data, net)
+    print(&quot;Epoch %d. Loss: %f, Train acc %f, Test acc %f&quot; % (
+        epoch, train_loss/len(train_data), 
+        train_acc/len(train_data),test_acc))
+</code></pre>
+
+<pre><code>Epoch 0. Loss: 1.249197, Train acc 0.558764, Test acc 0.696756
+</code></pre>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script> 
+    <div class="share">
+        
+
+        
+
+        
+        
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span> &copy; 2018 | 夏鲁豫 </span>
+                </p>
+                <p class="footer-copyright">
+                    <span>Powered by <a href="https://gohugo.io/">Hugo</a> And <a href="https://github.com/roryg/ghostwriter">Ghostwriter</a></span>
+                </p>
+                
+            </div>
+        </footer>
+
+        <script src="https://FierceX.github.io/js/jquery-1.11.3.min.js"></script>
+        <script src="https://FierceX.github.io/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="https://FierceX.github.io/js/scripts.js"></script>
+    </body>
+</html>
+

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>CentOS安装TensorFlow笔记 &middot; FierceX</title>
+        <meta name="description" content="最近公司需要在多台CentOS上部署TensorFlow用来并行推断，因为CentOS上的一些库比较老旧，没法安装TensorFlow，所以将安装流程记录下来，以备后用。
+1. 安装miniconda版本的python3 &gt;&gt; wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh &gt;&gt; bash Miniconda3-latest-Linux-x86_64.sh  安装的时候会询问一些东西，一律yes和回车就行
+2. 检查glibc共享库版本 &gt;&gt; ll /lib64/libc.so.6 lrwxrwxrwx. 1 root root 12 Jun 13 2015 /lib64/libc.so.6 -&gt; libc-2.12.so  如果是版本低于2.17,则需要手动编译安装glibc
+&gt;&gt; wget https://ftp.gnu.org/gnu/glibc/glibc-2.17.tar.gz &gt;&gt; tar -xvf glibc-2.17.tar.gz &gt;&gt; cd glibc-2.17 &gt;&gt; mkdir build &gt;&gt; cd build &gt;&gt; ../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin &gt;&gt; make &amp;&amp; make install  3. 检查libstdc&#43;&#43;.so.6版本 &gt;&gt; strings /usr/lib64/libstdc&#43;&#43;.so.6 | grep &#39;CXXABI&#39; CXXABI_1.3 CXXABI_1.3.1 CXXABI_1.3.2 CXXABI_1.">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.28" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="CentOS安装TensorFlow笔记">
+<meta property="og:description" content="最近公司需要在多台CentOS上部署TensorFlow用来并行推断，因为CentOS上的一些库比较老旧，没法安装TensorFlow，所以将安装流程记录下来，以备后用。
+1. 安装miniconda版本的python3 &gt;&gt; wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh &gt;&gt; bash Miniconda3-latest-Linux-x86_64.sh  安装的时候会询问一些东西，一律yes和回车就行
+2. 检查glibc共享库版本 &gt;&gt; ll /lib64/libc.so.6 lrwxrwxrwx. 1 root root 12 Jun 13 2015 /lib64/libc.so.6 -&gt; libc-2.12.so  如果是版本低于2.17,则需要手动编译安装glibc
+&gt;&gt; wget https://ftp.gnu.org/gnu/glibc/glibc-2.17.tar.gz &gt;&gt; tar -xvf glibc-2.17.tar.gz &gt;&gt; cd glibc-2.17 &gt;&gt; mkdir build &gt;&gt; cd build &gt;&gt; ../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin &gt;&gt; make &amp;&amp; make install  3. 检查libstdc&#43;&#43;.so.6版本 &gt;&gt; strings /usr/lib64/libstdc&#43;&#43;.so.6 | grep &#39;CXXABI&#39; CXXABI_1.3 CXXABI_1.3.1 CXXABI_1.3.2 CXXABI_1.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://FierceX.github.io/post/centos_install_tf/">
+        <link rel="stylesheet" href="https://FierceX.github.io/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                            </h1>
+                        
+                        <a class="button-square" href="https://FierceX.github.io/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/fiercex">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Email" title="Email" href="mailto:mailto:FierceX@outlook.com">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="/about/">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">CentOS安装TensorFlow笔记</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2018-05-30" itemprop="datePublished">Wed, May 30, 2018</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://FierceX.github.io" itemprop="url" rel="author">FierceX</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<p>最近公司需要在多台CentOS上部署TensorFlow用来并行推断，因为CentOS上的一些库比较老旧，没法安装TensorFlow，所以将安装流程记录下来，以备后用。</p>
+
+<h3 id="1-安装miniconda版本的python3">1. 安装miniconda版本的python3</h3>
+
+<pre><code class="language-bash">&gt;&gt; wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+&gt;&gt; bash Miniconda3-latest-Linux-x86_64.sh
+</code></pre>
+
+<p>安装的时候会询问一些东西，一律yes和回车就行</p>
+
+<h3 id="2-检查glibc共享库版本">2. 检查glibc共享库版本</h3>
+
+<pre><code class="language-bash">&gt;&gt; ll /lib64/libc.so.6
+lrwxrwxrwx. 1 root root 12 Jun 13  2015 /lib64/libc.so.6 -&gt; libc-2.12.so
+</code></pre>
+
+<p>如果是版本低于2.17,则需要手动编译安装glibc</p>
+
+<pre><code class="language-bash">&gt;&gt; wget https://ftp.gnu.org/gnu/glibc/glibc-2.17.tar.gz
+&gt;&gt; tar -xvf glibc-2.17.tar.gz
+&gt;&gt; cd glibc-2.17
+&gt;&gt; mkdir build
+&gt;&gt; cd build
+&gt;&gt; ../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
+&gt;&gt; make &amp;&amp; make install
+</code></pre>
+
+<h3 id="3-检查libstdc-so-6版本">3. 检查libstdc++.so.6版本</h3>
+
+<pre><code class="language-bash">&gt;&gt; strings /usr/lib64/libstdc++.so.6 | grep 'CXXABI'
+CXXABI_1.3
+CXXABI_1.3.1
+CXXABI_1.3.2
+CXXABI_1.3.3
+</code></pre>
+
+<p>如果没有1.3.7版本，则需要安装新版本,首先查看第一步安装的miniconda目录下的libstdc++版本</p>
+
+<pre><code class="language-bash">&gt;&gt; ls ./miniconda3/lib/libstdc++.so.6*
+/home/admin/miniconda3/lib/libstdc++.so.6  /home/admin/miniconda3/lib/libstdc++.so.6.0.24
+</code></pre>
+
+<p>把该目录下的文件拷贝至系统库目录，目前的版本为<code>libstdc++.so.6.0.24</code></p>
+
+<pre><code>&gt;&gt; cp ./miniconda3/lib/libstdc++.so.6.0.24 /usr/lib64/
+&gt;&gt; rm -rf /usr/lib64/libstdc++.so.6
+&gt;&gt; ln -s /usr/lib64/libstdc++.so.6.0.24 /usr/lib64/libstdc++.so.6
+</code></pre>
+
+<h3 id="4-安装tensorflow">4. 安装tensorflow</h3>
+
+<pre><code class="language-bash">&gt;&gt; pip install tensorflow==1.4.0 flask
+</code></pre>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script> 
+    <div class="share">
+        
+
+        
+
+        
+        
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span> &copy; 2018 | 夏鲁豫 </span>
+                </p>
+                <p class="footer-copyright">
+                    <span>Powered by <a href="https://gohugo.io/">Hugo</a> And <a href="https://github.com/roryg/ghostwriter">Ghostwriter</a></span>
+                </p>
+                
+            </div>
+        </footer>
+
+        <script src="https://FierceX.github.io/js/jquery-1.11.3.min.js"></script>
+        <script src="https://FierceX.github.io/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="https://FierceX.github.io/js/scripts.js"></script>
+    </body>
+</html>
+

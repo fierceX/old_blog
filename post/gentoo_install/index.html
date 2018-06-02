@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Gentoo安装笔记 &middot; FierceX</title>
+        <meta name="description" content="准备工作 首先下载所需的文件：
+1. 最小化安装镜像:install-amd64-minimal-20150903.iso
+2. Stage Tarball快照包:stage3-amd64-20150903.tar.bz2
+3. 系统Portage快照包:portage-20150828.tar.bz2
+磁盘分区 首先用虚拟机加载最小化安装镜像开机进入光盘系统，并开启ssh服务：
+/etc/init.d/sshd start
+并设定密码用来ssh登陆：
+passwd
+然后使用ssh登陆虚拟机
+1. 划分磁盘 首先要先划分磁盘，这里划分三个区，启动分区boot，交换分区swap，还有根分区\使用fdisk这个分区工具进行分区
+* /dev/sda1 启动分区
+* /dev/sda2 交换分区
+* /dev/sda3 根分区
+以下是具体划分磁盘与步骤：
+fdisk /dev/sda
+首先创建boot分区：
+n p 1 (回车) &#43;200M  这个分区是boot分区，我们要把这个分区设置成启动分区：
+a 1  然后创建交换分区：
+n p 2 (回车) &#43;1G  这个是我们的交换分区swap，我们要把分区类型改成交换分区的类型，82
+t 2 82  然后下面我们建立根分区:
+n p 3 (回车) (回车)  完成以上步骤，我们就创建好了三个分区，键入p可以查看分区表
+2. 格式化分区并挂载分区 格式化分区：
+mkfs.ext4 /dev/sda1 mkfs.ext4 /dev/sda3 mkswap /dev/sda2  挂载分区">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.28" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="Gentoo安装笔记">
+<meta property="og:description" content="准备工作 首先下载所需的文件：
+1. 最小化安装镜像:install-amd64-minimal-20150903.iso
+2. Stage Tarball快照包:stage3-amd64-20150903.tar.bz2
+3. 系统Portage快照包:portage-20150828.tar.bz2
+磁盘分区 首先用虚拟机加载最小化安装镜像开机进入光盘系统，并开启ssh服务：
+/etc/init.d/sshd start
+并设定密码用来ssh登陆：
+passwd
+然后使用ssh登陆虚拟机
+1. 划分磁盘 首先要先划分磁盘，这里划分三个区，启动分区boot，交换分区swap，还有根分区\使用fdisk这个分区工具进行分区
+* /dev/sda1 启动分区
+* /dev/sda2 交换分区
+* /dev/sda3 根分区
+以下是具体划分磁盘与步骤：
+fdisk /dev/sda
+首先创建boot分区：
+n p 1 (回车) &#43;200M  这个分区是boot分区，我们要把这个分区设置成启动分区：
+a 1  然后创建交换分区：
+n p 2 (回车) &#43;1G  这个是我们的交换分区swap，我们要把分区类型改成交换分区的类型，82
+t 2 82  然后下面我们建立根分区:
+n p 3 (回车) (回车)  完成以上步骤，我们就创建好了三个分区，键入p可以查看分区表
+2. 格式化分区并挂载分区 格式化分区：
+mkfs.ext4 /dev/sda1 mkfs.ext4 /dev/sda3 mkswap /dev/sda2  挂载分区">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://FierceX.github.io/post/gentoo_install/">
+        <link rel="stylesheet" href="https://FierceX.github.io/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                            </h1>
+                        
+                        <a class="button-square" href="https://FierceX.github.io/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/fiercex">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Email" title="Email" href="mailto:mailto:FierceX@outlook.com">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="/about/">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Gentoo安装笔记</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2015-09-05" itemprop="datePublished">Sat, Sep 5, 2015</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://FierceX.github.io" itemprop="url" rel="author">FierceX</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<h2 id="准备工作">准备工作</h2>
+
+<p>首先下载所需的文件：<br />
+1. 最小化安装镜像:install-amd64-minimal-20150903.iso<br />
+2. Stage Tarball快照包:stage3-amd64-20150903.tar.bz2<br />
+3. 系统Portage快照包:portage-20150828.tar.bz2</p>
+
+<h2 id="磁盘分区">磁盘分区</h2>
+
+<p>首先用虚拟机加载最小化安装镜像开机进入光盘系统，并开启ssh服务：<br />
+<code>/etc/init.d/sshd start</code><br />
+并设定密码用来ssh登陆：<br />
+<code>passwd</code><br />
+然后使用ssh登陆虚拟机</p>
+
+<h3 id="1-划分磁盘">1. 划分磁盘</h3>
+
+<p>首先要先划分磁盘，这里划分三个区，启动分区boot，交换分区swap，还有根分区\使用fdisk这个分区工具进行分区<br />
+* /dev/sda1 启动分区<br />
+* /dev/sda2 交换分区<br />
+* /dev/sda3 根分区<br />
+以下是具体划分磁盘与步骤：<br />
+<code>fdisk /dev/sda</code><br />
+首先创建boot分区：</p>
+
+<pre><code class="language-bash">n
+p
+1
+(回车)
++200M
+</code></pre>
+
+<p>这个分区是boot分区，我们要把这个分区设置成启动分区：</p>
+
+<pre><code class="language-bash">a
+1
+</code></pre>
+
+<p>然后创建交换分区：</p>
+
+<pre><code class="language-bash">n
+p
+2
+(回车)
++1G
+</code></pre>
+
+<p>这个是我们的交换分区swap，我们要把分区类型改成交换分区的类型，82</p>
+
+<pre><code class="language-bash">t
+2
+82
+</code></pre>
+
+<p>然后下面我们建立根分区:</p>
+
+<pre><code class="language-bash">n
+p
+3
+(回车)
+(回车)
+</code></pre>
+
+<p>完成以上步骤，我们就创建好了三个分区，键入p可以查看分区表</p>
+
+<h3 id="2-格式化分区并挂载分区">2. 格式化分区并挂载分区</h3>
+
+<p>格式化分区：</p>
+
+<pre><code class="language-bash">mkfs.ext4 /dev/sda1
+mkfs.ext4 /dev/sda3
+mkswap /dev/sda2
+</code></pre>
+
+<p>挂载分区</p>
+
+<pre><code class="language-bash">swapon /dev/sda2
+mount /dev/sda3 /mnt/gentoo
+mkdir /mnt/gentoo/boot
+mount /dev/sda1 /mnt/gentoo/boot
+</code></pre>
+
+<p>注意，这里挂载分区顺序不要出错，否则会出现挂载不上的情况</p>
+
+<h2 id="安装基本系统">安装基本系统</h2>
+
+<h3 id="1-安装stage和portage">1. 安装Stage和Portage</h3>
+
+<p>首先安装Stage Tarball,进入Gentoo的挂载点<br />
+<code>cd /mnt/gentoo</code><br />
+用FTP将事先下载好的Stage包传到虚拟机里然后解压：<br />
+<code>tar xvjpf stage3-*.tar.bz2</code><br />
+注意解压参数不要出错<strong>xvjpf</strong><br />
+然后再用FTP将事先安装好的Portage包传到虚拟机里解压安装：<br />
+<code>tar xvjf portage-*.tar.bz2 -C /mnt/gentoo/usr</code><br />
+注意解压参数“-C”的<strong>C</strong>为大写</p>
+
+<h3 id="2-配置镜像站和设置必要信息">2. 配置镜像站和设置必要信息</h3>
+
+<p>接下来配置镜像站：<br />
+<code>mirrorselect -i -o &gt;&gt; /mnt/gentoo/etc/portage/makd.conf</code>
+<code>mirrorselect -i -r -o &gt;&gt; /mnt/gentoo/etc/portage/make.conf</code>
+拷贝DNS设置到系统中，以便进入新系统后可以正常上网：<br />
+<code>cp -L /etc/resolv.conf /mnt/gentoo/etc/</code><br />
+将几个重要的当前目录挂载到新系统下：</p>
+
+<pre><code class="language-bash">mount -t proc none /mnt/gentoo/proc
+mount --rbind /sys /mnt/gentoo/sys
+mount --rbind /dev /mnt/gentoo/dev
+</code></pre>
+
+<h3 id="3-进入新系统">3. 进入新系统</h3>
+
+<p>然后切换到新系统中：</p>
+
+<pre><code>chroot /mnt/gentoo /bin/bash
+source /etc/profile
+export PS1=&quot;(chroot)$PS1&quot;
+</code></pre>
+
+<p>更新Portage树：<br />
+<code>emerge --sync</code></p>
+
+<h3 id="4-编译安装内核">4. 编译安装内核</h3>
+
+<p>查看可用的角色：<br />
+<code>eselect profile list</code><br />
+选择桌面系统，默认的是1，我选择3，桌面环境<br />
+<code>eselect profile set 3</code><br />
+安装内核源码：<br />
+<code>emerge gentoo-sources</code><br />
+编译之前，我们先在编译配置文件里加上一句话：<br />
+<code>vi /etc/portage/make.conf</code><br />
+<code>MAKEOPTS=&quot;-j4&quot;</code><br />
+安装自动化编译工具：<br />
+<code>emerge genkernel</code><br />
+开始用自动编译工具构建内核：<br />
+<code>genkernel all</code><br />
+编译时间会很长，慢慢等。。。<br />
+编译好了看一下编译出来的内核文件名，后面要用到：<br />
+<code>ls -a /boot</code></p>
+
+<h3 id="5-必要的配置">5. 必要的配置</h3>
+
+<p>安装vim，vi不好用，我习惯vim<br />
+<code>emerge vim</code><br />
+查看磁盘挂载列表是否正确，一般都是正确的：<br />
+<code>vim /etc/fstab</code><br />
+设置root用户密码：<br />
+<code>passwd</code><br />
+输入两次密码<br />
+下载启动管理器grub:<br />
+<code>emerge grub</code><br />
+注意：这里安装编译的是grub2而不是grub，所以用一下命令安装grub2到磁盘并生成配置文件：</p>
+
+<pre><code class="language-bash">grub2-install --no-floppy /dev/sda
+grub2-mkconfig -o /boot/grub/grub.cfg
+</code></pre>
+
+<p>查看grub配置文件中的内核文件是否正确：<br />
+<code>vim /boot/grub/grub.cfg</code><br />
+系统安装就完成了，然后我们需要安装一些必要的软件：</p>
+
+<pre><code class="language-bash">emerge syslog-ng
+emerge vixie-cron
+emerge dhcpcd
+emerge sshd
+rc-update add syslog-ng default
+rc-update add vixid-cron default
+rc-update add dhcpcd default
+rc-update add sshd default
+</code></pre>
+
+<h3 id="6-结束安装">6. 结束安装</h3>
+
+<p>到这里基本系统已经安装完成了，首先退出挂载：<br />
+<code>exit</code><br />
+然后回到光盘主目录卸载刚刚挂载的文件系统</p>
+
+<pre><code class="language-bash">umount /mnt/gentoo/boot
+umount /mnt/gentoo/dev
+umount /mnt/gentoo/proc
+umount /mnt/gentoo
+</code></pre>
+
+<p>关机重启：<br />
+<code>reboot</code></p>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script> 
+    <div class="share">
+        
+
+        
+
+        
+        
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span> &copy; 2018 | 夏鲁豫 </span>
+                </p>
+                <p class="footer-copyright">
+                    <span>Powered by <a href="https://gohugo.io/">Hugo</a> And <a href="https://github.com/roryg/ghostwriter">Ghostwriter</a></span>
+                </p>
+                
+            </div>
+        </footer>
+
+        <script src="https://FierceX.github.io/js/jquery-1.11.3.min.js"></script>
+        <script src="https://FierceX.github.io/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="https://FierceX.github.io/js/scripts.js"></script>
+    </body>
+</html>
+

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://FierceX.github.io/post/multi-head-attention_gluon/</loc>
+    <lastmod>2018-06-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/post/centos_install_tf/</loc>
+    <lastmod>2018-05-30T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/post/gluon_web/</loc>
+    <lastmod>2017-12-15T15:17:55+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/post/gluon_kaggle/</loc>
+    <lastmod>2017-11-29T22:28:36+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/post/email_monitor_mxnettrain/</loc>
+    <lastmod>2017-10-12T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/post/gluon_to_symbol/</loc>
+    <lastmod>2017-09-28T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/post/gluon_features_fine/</loc>
+    <lastmod>2017-09-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/about/</loc>
+    <lastmod>2017-09-25T16:28:59+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/post/in_debian_install_gentoo/</loc>
+    <lastmod>2015-09-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/post/gentoo_install/</loc>
+    <lastmod>2015-09-05T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/</loc>
+    <lastmod>2018-06-03T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/post/</loc>
+    <lastmod>2018-06-03T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://FierceX.github.io/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

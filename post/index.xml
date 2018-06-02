@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on FierceX</title>
+    <link>https://FierceX.github.io/post/</link>
+    <description>Recent content in Posts on FierceX</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <copyright>FierceX</copyright>
+    <lastBuildDate>Sun, 03 Jun 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://FierceX.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>使用Gluon实现Hulti Head Attention做情感分析</title>
+      <link>https://FierceX.github.io/post/multi-head-attention_gluon/</link>
+      <pubDate>Sun, 03 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://FierceX.github.io/post/multi-head-attention_gluon/</guid>
+      <description>1. Attention和Hulti Head Attention 在NLP任务中，Attention（注意力机制）是很常见也是很重要的一个策略，而在2017年Google的《Attention is All You Need》中，提出了Hulti Head Attention（多头注意力机制），下面简单介绍一下Attention和Hulti Head Attention
+1.1 Attention Attention本质可以描述为一个查询（Query）到一系列键（Key）值（Value）对的映射。而计算Attention一般分为三步
+ 将Query和每个Key进行相似度计算得到权重，在这里有很多计算方式，例如点积，拼接，感知机等。
+\[ f(Q,K)=\begin{cases} Q^TK &amp;\text {dot} \\ Q^TWK &amp; \text{general} \\ W[Q:K] &amp;\text{concat} \\v_a^Ttanh(W_aQ+U_aK) &amp; \text{perceptron}\end{cases} \]
+ 使用SoftMax对权重进行归一化
+\[ a=softmax(f(Q,K)) \]
+ 将权重和对应的键值进行加权求和得到最后的结果
+\[ Attention(Q,K,V)=\sum aV \]
+  在NLP中，一般Key和Value是同一个，即Key=Value
+而在Google的论文中，采用的是点积的Attention函数,并引入了一个调节因子\(\sqrt{d_k}\) 
+\[ Attention (Q,K,V) = SoftMax(\frac {Q^TK} {\sqrt{d_k}})V \]
+1.2 Hulti Head Attention Hulti Head Attention就是把Q，K，V通过参数矩阵映射一下然后再做Attention，然后把这个步骤重复h次，然后把结果拼接起来
+
+\[ head_i = Attention(QW_i^Q,KW_i^K,VW_i^V) \]</description>
+    </item>
+    
+    <item>
+      <title>CentOS安装TensorFlow笔记</title>
+      <link>https://FierceX.github.io/post/centos_install_tf/</link>
+      <pubDate>Wed, 30 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://FierceX.github.io/post/centos_install_tf/</guid>
+      <description>最近公司需要在多台CentOS上部署TensorFlow用来并行推断，因为CentOS上的一些库比较老旧，没法安装TensorFlow，所以将安装流程记录下来，以备后用。
+1. 安装miniconda版本的python3 &amp;gt;&amp;gt; wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh &amp;gt;&amp;gt; bash Miniconda3-latest-Linux-x86_64.sh  安装的时候会询问一些东西，一律yes和回车就行
+2. 检查glibc共享库版本 &amp;gt;&amp;gt; ll /lib64/libc.so.6 lrwxrwxrwx. 1 root root 12 Jun 13 2015 /lib64/libc.so.6 -&amp;gt; libc-2.12.so  如果是版本低于2.17,则需要手动编译安装glibc
+&amp;gt;&amp;gt; wget https://ftp.gnu.org/gnu/glibc/glibc-2.17.tar.gz &amp;gt;&amp;gt; tar -xvf glibc-2.17.tar.gz &amp;gt;&amp;gt; cd glibc-2.17 &amp;gt;&amp;gt; mkdir build &amp;gt;&amp;gt; cd build &amp;gt;&amp;gt; ../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin &amp;gt;&amp;gt; make &amp;amp;&amp;amp; make install  3. 检查libstdc++.so.6版本 &amp;gt;&amp;gt; strings /usr/lib64/libstdc++.so.6 | grep &#39;CXXABI&#39; CXXABI_1.3 CXXABI_1.3.1 CXXABI_1.3.2 CXXABI_1.</description>
+    </item>
+    
+    <item>
+      <title>使用Gluon和tornado搞一个汪星人种族识别网页</title>
+      <link>https://FierceX.github.io/post/gluon_web/</link>
+      <pubDate>Fri, 15 Dec 2017 15:17:55 +0800</pubDate>
+      
+      <guid>https://FierceX.github.io/post/gluon_web/</guid>
+      <description>使用上篇的120种狗分类得到的网络模型，就可以搞一个简单的web网页了。
+这里使用了uikit最为UI前端库，tornado最为web和服务器框架。
+1. 搞个输出结果的东东 这里只给出这一部分，全部参看上一篇和完整代码
+具体作用就是读取图像文件然后跑一遍网络，根据标签文件得到这到底是哪条狗
+class Pre(): def __init__(self,nameparams,idx,ctx=0): self.idx = idx if ctx == 0: self.ctx = mx.cpu() if ctx == 1: self.ctx = mx.gpu() self.net = Net(self.ctx,nameparams=nameparams).net self.Timg = transform_test def PreImg(self,img): imgs = self.Timg(img,None) out = nd.softmax(self.net(nd.reshape(imgs[0],(1,3,224,224)).as_in_context(self.ctx),nd.reshape(imgs[1],(1,3,299,299)).as_in_context(self.ctx))).asnumpy() return self.idx[np.where(out == out.max())[1][0]] def PreName(self,Name): img = image.imread(Name) return self.PreImg(img)  2. 编写web 2.1 文件目录框架  static (存放静态文件，包括css和js文件)  css js icon image  templates (存放模板文件，这里就一个主页)  index.</description>
+    </item>
+    
+    <item>
+      <title>Gluon炼丹（Kaggle 120种狗分类，迁移学习加双模型融合）</title>
+      <link>https://FierceX.github.io/post/gluon_kaggle/</link>
+      <pubDate>Wed, 29 Nov 2017 22:28:36 +0800</pubDate>
+      
+      <guid>https://FierceX.github.io/post/gluon_kaggle/</guid>
+      <description>这是在kaggle上的一个练习比赛，使用的是ImageNet数据集的子集。
+注意，mxnet版本要高于0.12.1b2017112。 下载数据集。
+- train.zip
+- test.zip
+- labels
+然后解压在data文件夹下
+1. 数据 1.1 整理数据 将解压后的数据整理成Gluon能够读取的形式，这里我直接使用了zh.gluon.ai教程上的代码
+导入各种库
+import math import os import shutil from collections import Counter  设置一些变量
+data_dir = &#39;./data&#39; label_file = &#39;labels.csv&#39; train_dir = &#39;train&#39; test_dir = &#39;test&#39; input_dir = &#39;train_valid_test&#39; batch_size = 128 valid_ratio = 0.1  定义整理数据函数
+def reorg_dog_data(data_dir, label_file, train_dir, test_dir, input_dir, valid_ratio): # 读取训练数据标签。 with open(os.path.join(data_dir, label_file), &#39;r&#39;) as f: # 跳过文件头行（栏名称）。 lines = f.</description>
+    </item>
+    
+    <item>
+      <title>使用邮件监控Mxnet训练</title>
+      <link>https://FierceX.github.io/post/email_monitor_mxnettrain/</link>
+      <pubDate>Thu, 12 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://FierceX.github.io/post/email_monitor_mxnettrain/</guid>
+      <description>1. 前言 受到小伙伴的启发，就自己动手写了一个使用邮件监控Mxnet训练的例子。整体不算复杂。
+2. 设置一些全局参数 邮箱服务的pop,smtp地址，邮箱账号，接受邮箱号和密码以及当前训练状态
+还有训练的超参数和保存路径和文件名参数等
+pophost = &#39;pop.126.com&#39; smtphost = &#39;smtp.126.com&#39; useremail = &#39;trainmonitor@126.com&#39; toemail = &#39;fiercewind@outlook.com&#39; password = &#39;123456&#39; running = False params = {&#39;ep&#39;: 10, &#39;lr&#39;: 0.002, &#39;bs&#39;: 128, &#39;wd&#39;: 0.0} nameparams = {&#39;dir&#39;:&#39;./&#39;,&#39;params&#39;:&#39;NN.params&#39;,&#39;png&#39;:&#39;NN.png&#39;}  3. 打包训练代码 需要进行监控训练，所以需要将训练的代码打包进一个函数内，通过传参的方式进行训练。还是使用FashionMNIST数据集
+这样训练的时候就调用函数传参就行了
+3.1 训练主函数 训练需要的一些参数都采用传参的形式
+这里我新加了一个名叫nameparams的参数，用于设置曲线图，保存的参数文件的路径和文件名
+def NN_Train(net, train_data, test_data,params,nameparams): msg = &#39;&#39; epochs = int(params[&#39;ep&#39;]) batch_size = int(params[&#39;bs&#39;]) learning_rate = params[&#39;lr&#39;] weight_decay = params[&#39;wd&#39;] train_loss = [] train_acc = [] dataset_train = gluon.</description>
+    </item>
+    
+    <item>
+      <title>MxNet新前端Gluon模型转换到Symbol</title>
+      <link>https://FierceX.github.io/post/gluon_to_symbol/</link>
+      <pubDate>Thu, 28 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://FierceX.github.io/post/gluon_to_symbol/</guid>
+      <description>1. 导入各种包 from mxnet import gluon from mxnet.gluon import nn import matplotlib.pyplot as plt from mxnet import autograd as autograd from mxnet import nd import mxnet as mx from collections import namedtuple import random  2. 准备数据 使用和mnist很像的FashionMNIST数据集，使用Gluon下载
+def transform(data,label): return data.astype(&#39;float32&#39;)/255,label.astype(&#39;float32&#39;)  fashion_train = gluon.data.vision.FashionMNIST(root=&#39;./&#39;,train=True,transform=transform) fashion_test = gluon.data.vision.FashionMNIST(root=&#39;./&#39;,train=True, transform=transform)  batch_size = 256 train_data = gluon.data.DataLoader(fashion_train,batch_size,shuffle=True) test_data = gluon.data.DataLoader(fashion_test,batch_size,shuffle=True)  用于显示图像和标签
+def show_images(images): n = images.shape[0] _, figs = plt.</description>
+    </item>
+    
+    <item>
+      <title>使用MxNet新接口Gluon提供的预训练模型进行微调</title>
+      <link>https://FierceX.github.io/post/gluon_features_fine/</link>
+      <pubDate>Wed, 27 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://FierceX.github.io/post/gluon_features_fine/</guid>
+      <description>1. 导入各种包 from mxnet import gluon import mxnet as mx from mxnet.gluon import nn from mxnet import ndarray as nd import matplotlib.pyplot as plt import cv2 from mxnet import image from mxnet import autograd  2. 导入数据 我使用cifar10这个数据集，使用gluon自带的模块下载到本地并且为了配合后面的网络，我将大小调整到224*224
+def transform(data, label): data = image.imresize(data, 224, 224) return data.astype(&#39;float32&#39;), label.astype(&#39;float32&#39;) cifar10_train = gluon.data.vision.CIFAR10(root=&#39;./&#39;,train=True, transform=transform) cifar10_test = gluon.data.vision.CIFAR10(root=&#39;./&#39;,train=False, transform=transform)  batch_size = 64 train_data = gluon.data.DataLoader(cifar10_train, batch_size, shuffle=True) test_data = gluon.data.DataLoader(cifar10_test, batch_size, shuffle=False)  3.</description>
+    </item>
+    
+    <item>
+      <title>Debian下安装Gentoo</title>
+      <link>https://FierceX.github.io/post/in_debian_install_gentoo/</link>
+      <pubDate>Thu, 10 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://FierceX.github.io/post/in_debian_install_gentoo/</guid>
+      <description>之前用虚拟机安装了Gentoo，发现安装也不算太费事，主要就是联网，然后就可以开滚了，因为我用的是校园网，所以没有安装好是没法联网的，安装Gentoo更不要说无线了，后来我想到，用ubuntu的盘装Gentoo联网应该好办，然后从网上下了个ubuntu的镜像，解压到U盘（我的是UEFI启动模式，解压到U盘就可以启动）启动以后，发现我们学校的认证客户端无法启动（我们学校用的是锐捷，万恶的锐捷），又没有无线，然后就放弃了，后来我一想，用liveCD可以安装，安装过程中就是分区挂载然后chroot到新系统，那用已经跑在机器上的linux系统不也一样吗，所以我就立马重启进Debian，开始我的探索之旅
+准备工作 首先下载所需文件：
+1. Stage Tarball快照包:stage3-amd64-20150903.tar.bz2
+2. 系统Portage快照包:portage-20150828.tar.bz2
+因为我们使用已经安装在机器里的别的Linux系统安装，所以不需要安装镜像，那前提是需要机器里有Linux系统的。
+磁盘分区 磁盘分区，可以使用所安装的Linux上的图形化分区工具，也可以用fdisk这个命令行工具，凭各自喜好吧，另外，在已经安装好的Linux上分区，可能需要root权限，如果不想切换到root用户的话，可以使用sudo，没有这个命令的可以百度一下或者切换到root用户，不再多说
+1. 划分磁盘 首先要有一个根分区，然后启动分区可以不分，交换分区可以用现有系统上的交换分区，所以，我图省事就分了一个根分区，分区命令我就不写了，不会的可以用图形化分区工具。
+2. 格式化分区并挂载分区 格式化分区我也就不多说了，格式化成ext4，我说一下挂载，因为我们是在现有的系统，所以挂载命令可能需要root权限，为了方便，可以在自己的主目录新建一个文件夹：
+madir gentoo
+然后挂载到这个目录上:
+sudo mount /dev/sda11 gentoo
+我的分区是sda11，注意看一下自己新建的分区是多少，因为我没有分boot分区，所以就在跟分区下新建一个boot目录
+mkdir gentoo/boot
+交换分区就不用挂载了，我不觉得你正在跑的系统没有交换分区，如果没有，那Gentoo也不需要有
+安装基本系统 1. 安装Stage和Portage 和正常安装一样，首先安装Stage Tarball，进入挂载好的gentoo目录，把下载好的Stage包复制到gentoo目录下，注意挂载的时候是用root权限挂载的，所以对这个目录写文件同样使用root权限：
+cd gentoo sudo cp ../stage3-amd64-20150903.tar.bz2 ./ sudo cp ../portage-20150828.tar.bz2 ./ sudo tar xvjpf stage3-*.tar.bz2 sudo tar xvjf portage-*.tar.bz2 -C /mnt/gentoo/usr  注意解压参数第一个是xvjf第二个是xvjpf并且&amp;rdquo;-C&amp;rdquo;中的C是大写
+2. 配置镜像站和设置必要的信息 因为我们用的是现有的系统，所以没有测试软件源速度的工具，但是，现有系统用的是哪个镜像站的软件源，Gentoo就使用哪个，比如我的用的是中科大的：
+sudo echo GENTOO_MIRRORS=&amp;quot;http://mirrors.ustc.edu.cn/gentoo/&amp;quot; &amp;gt;&amp;gt; etc/portage/makd.conf
+然后拷贝DNS设置到新系统中：
+cp -L /etc/resolv.conf etc/
+最后挂载几个重要的目录：</description>
+    </item>
+    
+    <item>
+      <title>Gentoo安装笔记</title>
+      <link>https://FierceX.github.io/post/gentoo_install/</link>
+      <pubDate>Sat, 05 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://FierceX.github.io/post/gentoo_install/</guid>
+      <description>准备工作 首先下载所需的文件：
+1. 最小化安装镜像:install-amd64-minimal-20150903.iso
+2. Stage Tarball快照包:stage3-amd64-20150903.tar.bz2
+3. 系统Portage快照包:portage-20150828.tar.bz2
+磁盘分区 首先用虚拟机加载最小化安装镜像开机进入光盘系统，并开启ssh服务：
+/etc/init.d/sshd start
+并设定密码用来ssh登陆：
+passwd
+然后使用ssh登陆虚拟机
+1. 划分磁盘 首先要先划分磁盘，这里划分三个区，启动分区boot，交换分区swap，还有根分区\使用fdisk这个分区工具进行分区
+* /dev/sda1 启动分区
+* /dev/sda2 交换分区
+* /dev/sda3 根分区
+以下是具体划分磁盘与步骤：
+fdisk /dev/sda
+首先创建boot分区：
+n p 1 (回车) +200M  这个分区是boot分区，我们要把这个分区设置成启动分区：
+a 1  然后创建交换分区：
+n p 2 (回车) +1G  这个是我们的交换分区swap，我们要把分区类型改成交换分区的类型，82
+t 2 82  然后下面我们建立根分区:
+n p 3 (回车) (回车)  完成以上步骤，我们就创建好了三个分区，键入p可以查看分区表
+2. 格式化分区并挂载分区 格式化分区：
+mkfs.ext4 /dev/sda1 mkfs.ext4 /dev/sda3 mkswap /dev/sda2  挂载分区</description>
+    </item>
+    
+  </channel>
+</rss>

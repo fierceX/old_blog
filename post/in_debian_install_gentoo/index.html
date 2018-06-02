@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Debian下安装Gentoo &middot; FierceX</title>
+        <meta name="description" content="之前用虚拟机安装了Gentoo，发现安装也不算太费事，主要就是联网，然后就可以开滚了，因为我用的是校园网，所以没有安装好是没法联网的，安装Gentoo更不要说无线了，后来我想到，用ubuntu的盘装Gentoo联网应该好办，然后从网上下了个ubuntu的镜像，解压到U盘（我的是UEFI启动模式，解压到U盘就可以启动）启动以后，发现我们学校的认证客户端无法启动（我们学校用的是锐捷，万恶的锐捷），又没有无线，然后就放弃了，后来我一想，用liveCD可以安装，安装过程中就是分区挂载然后chroot到新系统，那用已经跑在机器上的linux系统不也一样吗，所以我就立马重启进Debian，开始我的探索之旅
+准备工作 首先下载所需文件：
+1. Stage Tarball快照包:stage3-amd64-20150903.tar.bz2
+2. 系统Portage快照包:portage-20150828.tar.bz2
+因为我们使用已经安装在机器里的别的Linux系统安装，所以不需要安装镜像，那前提是需要机器里有Linux系统的。
+磁盘分区 磁盘分区，可以使用所安装的Linux上的图形化分区工具，也可以用fdisk这个命令行工具，凭各自喜好吧，另外，在已经安装好的Linux上分区，可能需要root权限，如果不想切换到root用户的话，可以使用sudo，没有这个命令的可以百度一下或者切换到root用户，不再多说
+1. 划分磁盘 首先要有一个根分区，然后启动分区可以不分，交换分区可以用现有系统上的交换分区，所以，我图省事就分了一个根分区，分区命令我就不写了，不会的可以用图形化分区工具。
+2. 格式化分区并挂载分区 格式化分区我也就不多说了，格式化成ext4，我说一下挂载，因为我们是在现有的系统，所以挂载命令可能需要root权限，为了方便，可以在自己的主目录新建一个文件夹：
+madir gentoo
+然后挂载到这个目录上:
+sudo mount /dev/sda11 gentoo
+我的分区是sda11，注意看一下自己新建的分区是多少，因为我没有分boot分区，所以就在跟分区下新建一个boot目录
+mkdir gentoo/boot
+交换分区就不用挂载了，我不觉得你正在跑的系统没有交换分区，如果没有，那Gentoo也不需要有
+安装基本系统 1. 安装Stage和Portage 和正常安装一样，首先安装Stage Tarball，进入挂载好的gentoo目录，把下载好的Stage包复制到gentoo目录下，注意挂载的时候是用root权限挂载的，所以对这个目录写文件同样使用root权限：
+cd gentoo sudo cp ../stage3-amd64-20150903.tar.bz2 ./ sudo cp ../portage-20150828.tar.bz2 ./ sudo tar xvjpf stage3-*.tar.bz2 sudo tar xvjf portage-*.tar.bz2 -C /mnt/gentoo/usr  注意解压参数第一个是xvjf第二个是xvjpf并且&rdquo;-C&rdquo;中的C是大写
+2. 配置镜像站和设置必要的信息 因为我们用的是现有的系统，所以没有测试软件源速度的工具，但是，现有系统用的是哪个镜像站的软件源，Gentoo就使用哪个，比如我的用的是中科大的：
+sudo echo GENTOO_MIRRORS=&quot;http://mirrors.ustc.edu.cn/gentoo/&quot; &gt;&gt; etc/portage/makd.conf
+然后拷贝DNS设置到新系统中：
+cp -L /etc/resolv.conf etc/
+最后挂载几个重要的目录：">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.28" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="Debian下安装Gentoo">
+<meta property="og:description" content="之前用虚拟机安装了Gentoo，发现安装也不算太费事，主要就是联网，然后就可以开滚了，因为我用的是校园网，所以没有安装好是没法联网的，安装Gentoo更不要说无线了，后来我想到，用ubuntu的盘装Gentoo联网应该好办，然后从网上下了个ubuntu的镜像，解压到U盘（我的是UEFI启动模式，解压到U盘就可以启动）启动以后，发现我们学校的认证客户端无法启动（我们学校用的是锐捷，万恶的锐捷），又没有无线，然后就放弃了，后来我一想，用liveCD可以安装，安装过程中就是分区挂载然后chroot到新系统，那用已经跑在机器上的linux系统不也一样吗，所以我就立马重启进Debian，开始我的探索之旅
+准备工作 首先下载所需文件：
+1. Stage Tarball快照包:stage3-amd64-20150903.tar.bz2
+2. 系统Portage快照包:portage-20150828.tar.bz2
+因为我们使用已经安装在机器里的别的Linux系统安装，所以不需要安装镜像，那前提是需要机器里有Linux系统的。
+磁盘分区 磁盘分区，可以使用所安装的Linux上的图形化分区工具，也可以用fdisk这个命令行工具，凭各自喜好吧，另外，在已经安装好的Linux上分区，可能需要root权限，如果不想切换到root用户的话，可以使用sudo，没有这个命令的可以百度一下或者切换到root用户，不再多说
+1. 划分磁盘 首先要有一个根分区，然后启动分区可以不分，交换分区可以用现有系统上的交换分区，所以，我图省事就分了一个根分区，分区命令我就不写了，不会的可以用图形化分区工具。
+2. 格式化分区并挂载分区 格式化分区我也就不多说了，格式化成ext4，我说一下挂载，因为我们是在现有的系统，所以挂载命令可能需要root权限，为了方便，可以在自己的主目录新建一个文件夹：
+madir gentoo
+然后挂载到这个目录上:
+sudo mount /dev/sda11 gentoo
+我的分区是sda11，注意看一下自己新建的分区是多少，因为我没有分boot分区，所以就在跟分区下新建一个boot目录
+mkdir gentoo/boot
+交换分区就不用挂载了，我不觉得你正在跑的系统没有交换分区，如果没有，那Gentoo也不需要有
+安装基本系统 1. 安装Stage和Portage 和正常安装一样，首先安装Stage Tarball，进入挂载好的gentoo目录，把下载好的Stage包复制到gentoo目录下，注意挂载的时候是用root权限挂载的，所以对这个目录写文件同样使用root权限：
+cd gentoo sudo cp ../stage3-amd64-20150903.tar.bz2 ./ sudo cp ../portage-20150828.tar.bz2 ./ sudo tar xvjpf stage3-*.tar.bz2 sudo tar xvjf portage-*.tar.bz2 -C /mnt/gentoo/usr  注意解压参数第一个是xvjf第二个是xvjpf并且&rdquo;-C&rdquo;中的C是大写
+2. 配置镜像站和设置必要的信息 因为我们用的是现有的系统，所以没有测试软件源速度的工具，但是，现有系统用的是哪个镜像站的软件源，Gentoo就使用哪个，比如我的用的是中科大的：
+sudo echo GENTOO_MIRRORS=&quot;http://mirrors.ustc.edu.cn/gentoo/&quot; &gt;&gt; etc/portage/makd.conf
+然后拷贝DNS设置到新系统中：
+cp -L /etc/resolv.conf etc/
+最后挂载几个重要的目录：">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://FierceX.github.io/post/in_debian_install_gentoo/">
+        <link rel="stylesheet" href="https://FierceX.github.io/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                            </h1>
+                        
+                        <a class="button-square" href="https://FierceX.github.io/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/fiercex">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Email" title="Email" href="mailto:mailto:FierceX@outlook.com">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="/about/">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Debian下安装Gentoo</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2015-09-10" itemprop="datePublished">Thu, Sep 10, 2015</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://FierceX.github.io" itemprop="url" rel="author">FierceX</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<p>之前用虚拟机安装了Gentoo，发现安装也不算太费事，主要就是联网，然后就可以开滚了，因为我用的是校园网，所以没有安装好是没法联网的，安装Gentoo更不要说无线了，后来我想到，用ubuntu的盘装Gentoo联网应该好办，然后从网上下了个ubuntu的镜像，解压到U盘（我的是UEFI启动模式，解压到U盘就可以启动）启动以后，发现我们学校的认证客户端无法启动（我们学校用的是锐捷，万恶的锐捷），又没有无线，然后就放弃了，后来我一想，用liveCD可以安装，安装过程中就是分区挂载然后chroot到新系统，那用已经跑在机器上的linux系统不也一样吗，所以我就立马重启进Debian，开始我的探索之旅</p>
+
+<h2 id="准备工作">准备工作</h2>
+
+<p>首先下载所需文件：<br />
+1. Stage Tarball快照包:stage3-amd64-20150903.tar.bz2<br />
+2. 系统Portage快照包:portage-20150828.tar.bz2<br />
+因为我们使用已经安装在机器里的别的Linux系统安装，所以不需要安装镜像，那前提是需要机器里有Linux系统的。</p>
+
+<h2 id="磁盘分区">磁盘分区</h2>
+
+<p>磁盘分区，可以使用所安装的Linux上的图形化分区工具，也可以用fdisk这个命令行工具，凭各自喜好吧，另外，在已经安装好的Linux上分区，可能需要root权限，如果不想切换到root用户的话，可以使用sudo，没有这个命令的可以百度一下或者切换到root用户，不再多说</p>
+
+<h3 id="1-划分磁盘">1. 划分磁盘</h3>
+
+<p>首先要有一个根分区，然后启动分区可以不分，交换分区可以用现有系统上的交换分区，所以，我图省事就分了一个根分区，分区命令我就不写了，不会的可以用图形化分区工具。</p>
+
+<h3 id="2-格式化分区并挂载分区">2. 格式化分区并挂载分区</h3>
+
+<p>格式化分区我也就不多说了，格式化成ext4，我说一下挂载，因为我们是在现有的系统，所以挂载命令可能需要root权限，为了方便，可以在自己的主目录新建一个文件夹：<br />
+<code>madir gentoo</code><br />
+然后挂载到这个目录上:<br />
+<code>sudo mount /dev/sda11 gentoo</code><br />
+我的分区是sda11，注意看一下自己新建的分区是多少，因为我没有分boot分区，所以就在跟分区下新建一个boot目录<br />
+<code>mkdir gentoo/boot</code><br />
+交换分区就不用挂载了，我不觉得你正在跑的系统没有交换分区，如果没有，那Gentoo也不需要有</p>
+
+<h2 id="安装基本系统">安装基本系统</h2>
+
+<h3 id="1-安装stage和portage">1. 安装Stage和Portage</h3>
+
+<p>和正常安装一样，首先安装Stage Tarball，进入挂载好的gentoo目录，把下载好的Stage包复制到gentoo目录下，注意挂载的时候是用root权限挂载的，所以对这个目录写文件同样使用root权限：</p>
+
+<pre><code class="language-bash">cd gentoo
+sudo cp ../stage3-amd64-20150903.tar.bz2 ./
+sudo cp ../portage-20150828.tar.bz2 ./
+sudo tar xvjpf stage3-*.tar.bz2
+sudo tar xvjf portage-*.tar.bz2 -C /mnt/gentoo/usr
+</code></pre>
+
+<p>注意解压参数第一个是<strong>xvjf</strong>第二个是<strong>xvjpf</strong>并且&rdquo;-C&rdquo;中的<strong>C</strong>是大写</p>
+
+<h3 id="2-配置镜像站和设置必要的信息">2. 配置镜像站和设置必要的信息</h3>
+
+<p>因为我们用的是现有的系统，所以没有测试软件源速度的工具，但是，现有系统用的是哪个镜像站的软件源，Gentoo就使用哪个，比如我的用的是中科大的：<br />
+<code>sudo echo GENTOO_MIRRORS=&quot;http://mirrors.ustc.edu.cn/gentoo/&quot; &gt;&gt; etc/portage/makd.conf</code><br />
+然后拷贝DNS设置到新系统中：<br />
+<code>cp -L /etc/resolv.conf etc/</code><br />
+最后挂载几个重要的目录：</p>
+
+<pre><code class="language-bash">sudo mount -t proc none proc
+sudo mount --rbind /sys sys
+sudo mount --rbind /dev dev
+</code></pre>
+
+<h3 id="3-进入新系统">3. 进入新系统</h3>
+
+<p>进入系统需要root权限，别忘了你挂载的时候是用的root权限,</p>
+
+<pre><code class="language-bash">cd ..
+sudo chroot ./gentoo bin/bash
+source /etc/profile
+export PS1=&quot;(chroot)$PS1&quot;
+</code></pre>
+
+<p>好了，我们现在进入这个新系统了，不需要干嘛都加sudo了。</p>
+
+<h3 id="4-编译安装内核">4.编译安装内核</h3>
+
+<p>查看可用的角色：<br />
+<code>eselect profile list</code><br />
+选择桌面系统，默认的是1，我选择3，桌面环境<br />
+<code>eselect profile set 3</code><br />
+安装内核源码：<br />
+<code>emerge gentoo-sources</code><br />
+编译之前，我们先在编译配置文件里加上一句话：<br />
+<code>vi /etc/portage/make.conf</code><br />
+<code>MAKEOPTS=&quot;-j4&quot;</code><br />
+安装自动化编译工具：<br />
+<code>emerge genkernel</code><br />
+开始用自动编译工具构建内核：<br />
+<code>genkernel all</code><br />
+编译时间会很长，慢慢等。。。</p>
+
+<h3 id="5-必要的配置">5. 必要的配置</h3>
+
+<p>安装vim，vi不好用，我习惯vim<br />
+<code>emerge vim</code><br />
+查看磁盘挂载列表是否正确，这里我是错误的，记住把你现在用的交换分区写到里面：<br />
+<code>vim /etc/fstab</code><br />
+设置root用户密码：<br />
+<code>passwd</code><br />
+输入两次密码<br />
+我们可以不用安装启动管理器，因我我们可以用现用系统上的启动管理器，更新一下你现用系统上的启动管理器，有惊喜，比如我的，另开一个终端更新grub：<br />
+<code>sudo update-gurb</code><br />
+好了，系统安装就算完成了，安装一些别的软件：</p>
+
+<pre><code class="language-bash">emerge syslog-ng
+emerge vixie-cron
+emerge dhcpcd
+emerge sshd
+rc-update add syslog-ng default
+rc-update add vixid-cron default
+rc-update add dhcpcd default
+rc-update add sshd default
+</code></pre>
+
+<h3 id="6-结束安装">6. 结束安装</h3>
+
+<p>退出这个新系统：<br />
+<code>exit</code><br />
+然后，然后重启你的机器</p>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script> 
+    <div class="share">
+        
+
+        
+
+        
+        
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span> &copy; 2018 | 夏鲁豫 </span>
+                </p>
+                <p class="footer-copyright">
+                    <span>Powered by <a href="https://gohugo.io/">Hugo</a> And <a href="https://github.com/roryg/ghostwriter">Ghostwriter</a></span>
+                </p>
+                
+            </div>
+        </footer>
+
+        <script src="https://FierceX.github.io/js/jquery-1.11.3.min.js"></script>
+        <script src="https://FierceX.github.io/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="https://FierceX.github.io/js/scripts.js"></script>
+    </body>
+</html>
+

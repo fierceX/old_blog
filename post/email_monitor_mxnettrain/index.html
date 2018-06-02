@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>使用邮件监控Mxnet训练 &middot; FierceX</title>
+        <meta name="description" content="1. 前言 受到小伙伴的启发，就自己动手写了一个使用邮件监控Mxnet训练的例子。整体不算复杂。
+2. 设置一些全局参数 邮箱服务的pop,smtp地址，邮箱账号，接受邮箱号和密码以及当前训练状态
+还有训练的超参数和保存路径和文件名参数等
+pophost = &#39;pop.126.com&#39; smtphost = &#39;smtp.126.com&#39; useremail = &#39;trainmonitor@126.com&#39; toemail = &#39;fiercewind@outlook.com&#39; password = &#39;123456&#39; running = False params = {&#39;ep&#39;: 10, &#39;lr&#39;: 0.002, &#39;bs&#39;: 128, &#39;wd&#39;: 0.0} nameparams = {&#39;dir&#39;:&#39;./&#39;,&#39;params&#39;:&#39;NN.params&#39;,&#39;png&#39;:&#39;NN.png&#39;}  3. 打包训练代码 需要进行监控训练，所以需要将训练的代码打包进一个函数内，通过传参的方式进行训练。还是使用FashionMNIST数据集
+这样训练的时候就调用函数传参就行了
+3.1 训练主函数 训练需要的一些参数都采用传参的形式
+这里我新加了一个名叫nameparams的参数，用于设置曲线图，保存的参数文件的路径和文件名
+def NN_Train(net, train_data, test_data,params,nameparams): msg = &#39;&#39; epochs = int(params[&#39;ep&#39;]) batch_size = int(params[&#39;bs&#39;]) learning_rate = params[&#39;lr&#39;] weight_decay = params[&#39;wd&#39;] train_loss = [] train_acc = [] dataset_train = gluon.">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.28" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="使用邮件监控Mxnet训练">
+<meta property="og:description" content="1. 前言 受到小伙伴的启发，就自己动手写了一个使用邮件监控Mxnet训练的例子。整体不算复杂。
+2. 设置一些全局参数 邮箱服务的pop,smtp地址，邮箱账号，接受邮箱号和密码以及当前训练状态
+还有训练的超参数和保存路径和文件名参数等
+pophost = &#39;pop.126.com&#39; smtphost = &#39;smtp.126.com&#39; useremail = &#39;trainmonitor@126.com&#39; toemail = &#39;fiercewind@outlook.com&#39; password = &#39;123456&#39; running = False params = {&#39;ep&#39;: 10, &#39;lr&#39;: 0.002, &#39;bs&#39;: 128, &#39;wd&#39;: 0.0} nameparams = {&#39;dir&#39;:&#39;./&#39;,&#39;params&#39;:&#39;NN.params&#39;,&#39;png&#39;:&#39;NN.png&#39;}  3. 打包训练代码 需要进行监控训练，所以需要将训练的代码打包进一个函数内，通过传参的方式进行训练。还是使用FashionMNIST数据集
+这样训练的时候就调用函数传参就行了
+3.1 训练主函数 训练需要的一些参数都采用传参的形式
+这里我新加了一个名叫nameparams的参数，用于设置曲线图，保存的参数文件的路径和文件名
+def NN_Train(net, train_data, test_data,params,nameparams): msg = &#39;&#39; epochs = int(params[&#39;ep&#39;]) batch_size = int(params[&#39;bs&#39;]) learning_rate = params[&#39;lr&#39;] weight_decay = params[&#39;wd&#39;] train_loss = [] train_acc = [] dataset_train = gluon.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://FierceX.github.io/post/email_monitor_mxnettrain/">
+        <link rel="stylesheet" href="https://FierceX.github.io/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                            </h1>
+                        
+                        <a class="button-square" href="https://FierceX.github.io/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/fiercex">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Email" title="Email" href="mailto:mailto:FierceX@outlook.com">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="/about/">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">使用邮件监控Mxnet训练</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2017-10-12" itemprop="datePublished">Thu, Oct 12, 2017</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://FierceX.github.io" itemprop="url" rel="author">FierceX</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<h2 id="1-前言">1. 前言</h2>
+
+<p>受到小伙伴的启发，就自己动手写了一个使用邮件监控Mxnet训练的例子。整体不算复杂。</p>
+
+<h2 id="2-设置一些全局参数">2. 设置一些全局参数</h2>
+
+<p>邮箱服务的pop,smtp地址，邮箱账号，接受邮箱号和密码以及当前训练状态<br />
+还有训练的超参数和保存路径和文件名参数等</p>
+
+<pre><code class="language-python">pophost = 'pop.126.com'
+smtphost = 'smtp.126.com'
+useremail = 'trainmonitor@126.com'
+toemail = 'fiercewind@outlook.com'
+password = '123456'
+
+running = False
+
+params = {'ep': 10, 'lr': 0.002, 'bs': 128, 'wd': 0.0}
+nameparams = {'dir':'./','params':'NN.params','png':'NN.png'}
+</code></pre>
+
+<h2 id="3-打包训练代码">3. 打包训练代码</h2>
+
+<p>需要进行监控训练，所以需要将训练的代码打包进一个函数内，通过传参的方式进行训练。还是使用FashionMNIST数据集<br />
+这样训练的时候就调用函数传参就行了</p>
+
+<h3 id="3-1-训练主函数">3.1 训练主函数</h3>
+
+<p>训练需要的一些参数都采用传参的形式<br />
+这里我新加了一个名叫<code>nameparams</code>的参数，用于设置曲线图，保存的参数文件的路径和文件名</p>
+
+<pre><code class="language-python">def NN_Train(net, train_data, test_data,params,nameparams):
+    msg = ''
+
+    epochs = int(params['ep'])
+    batch_size = int(params['bs'])
+    learning_rate = params['lr']
+    weight_decay = params['wd']
+
+    train_loss = []
+    train_acc = []
+    dataset_train = gluon.data.DataLoader(train_data, batch_size, shuffle=True)
+    test_loss = []
+    test_acc = []
+    dataset_test = gluon.data.DataLoader(test_data, batch_size, shuffle=True)
+
+    trainer = gluon.Trainer(net.collect_params(), 'adam',
+                            {'learning_rate': learning_rate,
+                             'wd': weight_decay})
+    softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+
+    for epoch in range(epochs):
+        _loss = 0.
+        _acc = 0.
+        t_acc = 0.
+        for data, label in dataset_train:
+            data = nd.transpose(data, (0, 3, 1, 2))
+            data = data.as_in_context(ctx)
+            label = label.as_in_context(ctx)
+            with autograd.record():
+                output = net(data)
+                loss = softmax_cross_entropy(output, label)
+            loss.backward()
+            trainer.step(batch_size)
+
+            _loss += nd.mean(loss).asscalar()
+            _acc += accuracy(output, label)
+        __acc = _acc / len(dataset_train)
+        __loss = _loss / len(dataset_train)
+        train_loss.append(__loss)
+        train_acc.append(__acc)
+
+        t_acc, t_loss = evaluate_accuracy(dataset_test, net)
+        test_loss.append(t_loss)
+        test_acc.append(t_acc)
+
+        msg += (&quot;Epoch %d. Train Loss: %f, Test Loss: %f, Train Acc %f, Test Acc %f\n&quot; % (
+            epoch, __loss, t_loss, __acc, t_acc))
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+    ax1.plot(train_loss, 'r')
+    ax1.plot(test_loss, 'g')
+    ax1.legend(['Train_Loss', 'Test_Loss'], loc=2)
+    ax1.set_ylabel('Loss')
+
+    ax2 = ax1.twinx()
+    ax2.plot(train_acc, 'b')
+    ax2.plot(test_acc, 'y')
+    ax2.legend(['Train_Acc', 'Test_Acc'], loc=1)
+    ax2.set_ylabel('Acc')
+
+    plt.savefig(os.path.join(nameparams['dir'],nameparams['png']), dpi=600)
+    net.save_params(os.path.join(nameparams['dir'],nameparams['params']))
+    return msg
+</code></pre>
+
+<h3 id="3-2-打包网络模型">3.2 打包网络模型</h3>
+
+<p>同样，需要把网络也打包进函数内</p>
+
+<pre><code class="language-python">def GetNN():
+    net = nn.HybridSequential()
+    with net.name_scope():
+        net.add(gluon.nn.Conv2D(channels=20, kernel_size=5, activation='relu'))
+        net.add(gluon.nn.MaxPool2D(pool_size=2, strides=2))
+        net.add(gluon.nn.Conv2D(channels=50, kernel_size=3, activation='relu'))
+        net.add(gluon.nn.MaxPool2D(pool_size=2, strides=2))
+        net.add(gluon.nn.Flatten())
+        net.add(gluon.nn.Dense(10))
+    net.initialize(init=mx.init.Xavier(), ctx=ctx)
+    net.hybridize()
+    return net
+</code></pre>
+
+<h3 id="3-3-打包数据读取">3.3 打包数据读取</h3>
+
+<p>然后把数据读取也搞进函数内</p>
+
+<pre><code class="language-python">def GetDate():
+    fashion_train = gluon.data.vision.FashionMNIST(
+        root='./', train=True, transform=transform)
+    fashion_test = gluon.data.vision.FashionMNIST(
+        root='./', train=True, transform=transform)
+    return fashion_train, fashion_test
+</code></pre>
+
+<h2 id="4-搞定邮件的接收发送">4. 搞定邮件的接收发送</h2>
+
+<p>使用邮件监控，就要搞定在Python上使用邮件的问题，还好Python内置了邮件库<br />
+这样接收发送邮件也只用调用函数就好了</p>
+
+<h3 id="4-1-接受邮件">4.1 接受邮件</h3>
+
+<p>我只接受纯文本的内容，因为HTML内容的太过复杂</p>
+
+<pre><code class="language-python">def ReEmail():
+    try:
+        pp = poplib.POP3(pophost)
+        pp.user(useremail)
+        pp.pass_(password)
+        resp, mails, octets = pp.list()
+        index = len(mails)
+        if index &gt; 0:
+            resp, lines, octets = pp.retr(index)
+            msg_content = b'\r\n'.join(lines).decode('utf-8')
+            pp.dele(index)
+            pp.quit()
+            msg = Parser().parsestr(msg_content)
+            message = Get_info(msg)
+            subject = msg.get('Subject')
+            date = msg.get('Date')
+            return message,subject,date
+    except ConnectionResetError as e:
+        print('ConnectionResetError')
+    return None,None,None
+</code></pre>
+
+<h3 id="4-2-发送邮件">4.2 发送邮件</h3>
+
+<p>发送邮件我是用了一个第三方邮件库<code>envelopes</code>，因为简单方便。</p>
+
+<pre><code class="language-python">def SentEmail(message, subject,imgpath):
+    envelope = Envelope(
+        from_addr=(Global.useremail, u'Train'),
+        to_addr=(Global.toemail, u'FierceX'),
+        subject=subject,
+        text_body=message
+    )
+    if imgpath is not None:
+        envelope.add_attachment(imgpath)
+
+    envelope.send(Global.smtphost, login=Global.useremail,
+                  password=Global.password, tls=True)
+</code></pre>
+
+<h3 id="4-3-解析邮件内容">4.3 解析邮件内容</h3>
+
+<p>然后需要解析邮件内容，这段基本从网上抄来的，因为邮件格式很复杂，没深究</p>
+
+<pre><code class="language-python">def Get_info(msg):
+    if (msg.is_multipart()):
+        parts = msg.get_payload()
+        for n, part in enumerate(parts):
+            return Get_info(part)
+    if not msg.is_multipart():
+        content_type = msg.get_content_type()
+        if content_type=='text/plain':
+            content = msg.get_payload(decode=True)
+            charset = guess_charset(msg)
+            if charset:
+                content = content.decode(charset)
+            return content
+</code></pre>
+
+<h2 id="5-使用责任链模式解析命令">5. 使用责任链模式解析命令</h2>
+
+<p>在解析命令里，我使用了责任链模式，并且设置了一个前台类，可以添加新的命令解析类，具体看代码</p>
+
+<h3 id="5-1-责任链基类">5.1 责任链基类</h3>
+
+<p>我在责任链基类里实现了判断当前命令是否是该对象可执行的命令，这样在编写命令解析类时，就可以忽略判断条件，直接重写解析方法<code>Work</code>即可</p>
+
+<pre><code class="language-python">class BaseCmd:
+    def __init__(self, cmd):
+        self.Next = None
+        self.cmd = cmd
+
+    def SetNext(self, n):
+        self.Next = n
+
+    def DoAnalysis(self, cmd, params):
+        if cmd == self.cmd:
+            self.Work(params)
+        elif self.Next is not None:
+            self.Next.DoAnalysis(cmd, params)
+
+    def Work(self, params):
+        pass
+</code></pre>
+
+<h3 id="5-2-责任链前台类">5.2 责任链前台类</h3>
+
+<p>在前台类里，我添加了一个<code>Add</code>方法，用于添加新的命令解析类，在此方法里我自动添加该解析类到责任链的尾部。</p>
+
+<pre><code class="language-python">class CmdAnaly:
+    def __init__(self):
+        self.CmdList = []
+        self.Add(ExitCmd('exit'))
+        self.Add(TrainCmd('train'))
+        self.Add(SetNameParamsCmd('setname'))
+
+    def Add(self, cmd):
+        self.CmdList.append(cmd)
+        if len(self.CmdList) &gt; 1:
+            self.CmdList[len(self.CmdList) - 2].SetNext(self.CmdList[len(self.CmdList) - 1])
+
+    def Analy(self, cmd, params):
+        self.CmdList[0].DoAnalysis(cmd, params)
+</code></pre>
+
+<h3 id="5-3-命令解析类">5.3 命令解析类</h3>
+
+<p>我只编写了三个命令解析类</p>
+
+<h4 id="训练类">训练类</h4>
+
+<pre><code class="language-python">class TrainCmd(BaseCmd):
+    def __init__(self, cmd):
+        BaseCmd.__init__(self, cmd)
+
+    def Work(self, msg):
+        print('train')
+        if Global.running == False:
+            xx = msg.split('\r\n')
+            for k in xx:
+                ks = k.split(' ')
+                if len(ks) &gt; 1:
+                    Global.params[ks[0]] = float(ks[1])
+            t = threading.Thread(target=run)
+            t.start()
+        else:
+            message = ('Training is underway\n%s\n%s') % 
+            (str(Global.params),str(Global.nameparams))
+            EmailTool.SentEmail(message,
+                                'Training is underway',
+                                None)
+</code></pre>
+
+<h4 id="退出类">退出类</h4>
+
+<pre><code class="language-python">class ExitCmd(BaseCmd):
+    def __init__(self, cmd):
+        BaseCmd.__init__(self, cmd)
+
+    def Work(self, params):
+        print('exit')
+        os._exit(0)
+</code></pre>
+
+<h4 id="设置图片-参数文件名称和保存路径类">设置图片，参数文件名称和保存路径类</h4>
+
+<pre><code class="language-python">class SetNameParamsCmd(BaseCmd):
+    def __init__(self,cmd):
+        BaseCmd.__init__(self,cmd)
+    
+    def Work(self,msg):
+        xx = msg.split('\r\n')
+        for k in xx:
+             ks = k.split(' ')
+             if len(ks) &gt; 1:
+                 Global.nameparams[ks[0]] = ks[1]
+        print(Global.nameparams)
+        EmailTool.SentEmail(str(Global.nameparams),'NameParams',None)
+</code></pre>
+
+<h2 id="6-使用多线程多进程监控训练">6. 使用多线程多进程监控训练</h2>
+
+<p>由于Python的多线程的性能局限性，我使用了子进程进行训练，这样不会受到主进程循环监控的影响</p>
+
+<pre><code class="language-python">def nn(params,nameparams):
+    train, test = NN_Train.GetDate()
+    print(params)
+    print(nameparams)
+    msg = ('%s\n') % str(params)
+    msg += ('%s\n') % str(nameparams)
+    msg += NN_Train.NN_Train(
+        NN_Train.GetNN(),
+        train_data=train,
+        test_data=test,
+        params = params,
+        nameparams = nameparams)
+    EmailTool.SentEmail(msg, 'TrainResult',os.path.join(nameparams['dir'],nameparams['png']))
+
+def run():
+    p = Process(target=nn,args=(Global.params,Global.nameparams,))
+    print('TrainStrart')
+    Global.running = True
+    p.start()
+    p.join()
+    Global.running = False
+</code></pre>
+
+<h2 id="7-使用循环监控邮箱">7. 使用循环监控邮箱</h2>
+
+<p>在主进程中，使用循环监控邮箱内容并解析邮件命令，交给命令解析类解析处理。</p>
+
+<pre><code class="language-python">if __name__ == '__main__':
+    Global.running = False
+    cmdana = CmdAnalysis.CmdAnaly()
+    print('Start')
+    a = 1
+    while(True):
+        time.sleep(10)
+        print(a, Global.running)
+        try:
+            msg, sub, date = EmailTool.ReEmail()
+        except TimeoutError as e:
+            print('TimeoutError')
+        cmdana.Analy(sub, msg)
+        a += 1
+</code></pre>
+
+<h2 id="8-效果">8. 效果</h2>
+
+<h3 id="发送训练邮件">发送训练邮件</h3>
+
+<p><img src="/img/emmt1.png" alt="png" /></p>
+
+<h3 id="训练结束返回结果">训练结束返回结果</h3>
+
+<p><img src="/img/emmt2.png" alt="png" /></p>
+
+<h2 id="9-结语">9. 结语</h2>
+
+<p>使用邮件监控并不太复杂，主要在于邮件的解析。邮件格式太复杂，如果全都在主题里，参数多了会显得很乱。<br />
+根据需要添加新的命令解析类，然后在<code>CmdAnaly</code>类里使用<code>Add</code>方法添加进去就行了。<br />
+总之我认为在aws上训练还是可以一用的，总不能一直连着终端。<br />
+<a href="https://github.com/fierceX/Email_Monitor_MxnetTrain">完整代码</a></p>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script> 
+    <div class="share">
+        
+
+        
+
+        
+        
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span> &copy; 2018 | 夏鲁豫 </span>
+                </p>
+                <p class="footer-copyright">
+                    <span>Powered by <a href="https://gohugo.io/">Hugo</a> And <a href="https://github.com/roryg/ghostwriter">Ghostwriter</a></span>
+                </p>
+                
+            </div>
+        </footer>
+
+        <script src="https://FierceX.github.io/js/jquery-1.11.3.min.js"></script>
+        <script src="https://FierceX.github.io/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="https://FierceX.github.io/js/scripts.js"></script>
+    </body>
+</html>
+

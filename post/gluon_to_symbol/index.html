@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>MxNet新前端Gluon模型转换到Symbol &middot; FierceX</title>
+        <meta name="description" content="1. 导入各种包 from mxnet import gluon from mxnet.gluon import nn import matplotlib.pyplot as plt from mxnet import autograd as autograd from mxnet import nd import mxnet as mx from collections import namedtuple import random  2. 准备数据 使用和mnist很像的FashionMNIST数据集，使用Gluon下载
+def transform(data,label): return data.astype(&#39;float32&#39;)/255,label.astype(&#39;float32&#39;)  fashion_train = gluon.data.vision.FashionMNIST(root=&#39;./&#39;,train=True,transform=transform) fashion_test = gluon.data.vision.FashionMNIST(root=&#39;./&#39;,train=True, transform=transform)  batch_size = 256 train_data = gluon.data.DataLoader(fashion_train,batch_size,shuffle=True) test_data = gluon.data.DataLoader(fashion_test,batch_size,shuffle=True)  用于显示图像和标签
+def show_images(images): n = images.shape[0] _, figs = plt.">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.28" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="MxNet新前端Gluon模型转换到Symbol">
+<meta property="og:description" content="1. 导入各种包 from mxnet import gluon from mxnet.gluon import nn import matplotlib.pyplot as plt from mxnet import autograd as autograd from mxnet import nd import mxnet as mx from collections import namedtuple import random  2. 准备数据 使用和mnist很像的FashionMNIST数据集，使用Gluon下载
+def transform(data,label): return data.astype(&#39;float32&#39;)/255,label.astype(&#39;float32&#39;)  fashion_train = gluon.data.vision.FashionMNIST(root=&#39;./&#39;,train=True,transform=transform) fashion_test = gluon.data.vision.FashionMNIST(root=&#39;./&#39;,train=True, transform=transform)  batch_size = 256 train_data = gluon.data.DataLoader(fashion_train,batch_size,shuffle=True) test_data = gluon.data.DataLoader(fashion_test,batch_size,shuffle=True)  用于显示图像和标签
+def show_images(images): n = images.shape[0] _, figs = plt.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://FierceX.github.io/post/gluon_to_symbol/">
+        <link rel="stylesheet" href="https://FierceX.github.io/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                            </h1>
+                        
+                        <a class="button-square" href="https://FierceX.github.io/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/fiercex">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Email" title="Email" href="mailto:mailto:FierceX@outlook.com">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="/about/">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">MxNet新前端Gluon模型转换到Symbol</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2017-09-28" itemprop="datePublished">Thu, Sep 28, 2017</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://FierceX.github.io" itemprop="url" rel="author">FierceX</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<h2 id="1-导入各种包">1. 导入各种包</h2>
+
+<pre><code class="language-python">from mxnet import gluon
+from mxnet.gluon import nn
+import matplotlib.pyplot as plt
+from mxnet import autograd as autograd
+from mxnet import nd
+import mxnet as mx
+from collections import namedtuple
+import random
+</code></pre>
+
+<h2 id="2-准备数据">2. 准备数据</h2>
+
+<p>使用和mnist很像的FashionMNIST数据集，使用Gluon下载</p>
+
+<pre><code class="language-python">def transform(data,label):
+    return data.astype('float32')/255,label.astype('float32')
+</code></pre>
+
+<pre><code class="language-python">fashion_train = gluon.data.vision.FashionMNIST(root='./',train=True,transform=transform)
+fashion_test = gluon.data.vision.FashionMNIST(root='./',train=True, transform=transform)
+</code></pre>
+
+<pre><code class="language-python">batch_size = 256
+train_data = gluon.data.DataLoader(fashion_train,batch_size,shuffle=True)
+test_data = gluon.data.DataLoader(fashion_test,batch_size,shuffle=True)
+</code></pre>
+
+<p>用于显示图像和标签</p>
+
+<pre><code class="language-python">def show_images(images):
+    n = images.shape[0]
+    _, figs = plt.subplots(1, n, figsize=(15, 15))
+    for i in range(n):
+        figs[i].imshow(images[i].reshape((28, 28)).asnumpy())
+        figs[i].axes.get_xaxis().set_visible(False)
+        figs[i].axes.get_yaxis().set_visible(False)
+    plt.show()
+</code></pre>
+
+<pre><code class="language-python">def get_text_labels(label):
+    text_labels = [
+        't-shirt', 'trouser', 'pullover', 'dress,', 'coat',
+        'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot'
+    ]
+    return [text_labels[int(i)] for i in label]
+</code></pre>
+
+<p>看下数据集长啥样</p>
+
+<pre><code class="language-python">data,label = fashion_train[5:19]
+show_images(data)
+print(get_text_labels(label))
+</code></pre>
+
+<p><img src="/img/output_9_0.png" alt="png" /></p>
+
+<pre><code>['coat', 'coat', 'sandal', 'coat', 'bag', 't-shirt', 'bag', 'ankle boot', 't-shirt', 'pullover', 'pullover', 'ankle boot', 'dress,', 'dress,']
+</code></pre>
+
+<h2 id="3-精度计算函数">3. 精度计算函数</h2>
+
+<pre><code class="language-python">def accuracy(output, label):
+    return nd.mean(output.argmax(axis=1)==label).asscalar()
+
+def evaluate_accuracy(data_iterator, net):
+    acc = 0.
+    for data, label in data_iterator:
+        output = net(nd.transpose(data,(0,3,1,2)))
+        acc += accuracy(output, label)
+    return acc / len(data_iterator)
+</code></pre>
+
+<h2 id="4-定义网络">4. 定义网络</h2>
+
+<h3 id="4-1-自己定义的层">4.1 自己定义的层</h3>
+
+<p>Gluon模型转到Symbol下只能用<code>HybridSequential</code>模式，<code>HybridSequential</code>是静态图，会对计算有优化，不过<code>HybridSequential</code>和<code>Sequential</code>可以很方便的转换，确切的就是一行代码的事。同样自定义的网络，要使用<code>HybridBlock</code>，和<code>Block</code>没有多大区别</p>
+
+<pre><code class="language-python">class MyDense(nn.HybridBlock):
+    def __init__(self,**kwargs):
+        super(MyDense,self).__init__(**kwargs)
+        with self.name_scope():
+            self.dense0 = nn.Dense(256)
+            self.dense1 = nn.Dense(10)
+    def hybrid_forward(self,F,x):   #  这里要使用hybrid_forward而不是forward，并且多了个参数F
+        return self.dense1(F.relu(self.dense0(x)))    #  F的作用就是替代 nd，如果是静态图，就是用 sym，否则使用 nd
+</code></pre>
+
+<h3 id="4-2-使用自定义的层和自带的层组成完整的网络">4.2 使用自定义的层和自带的层组成完整的网络</h3>
+
+<p>网络定义和动态图一样，只不过把<code>Sequential</code>替换成了<code>HybridSequential</code>，在最后使用<code>hybridize()</code>会对静态图进行优化</p>
+
+<pre><code class="language-python">net = nn.HybridSequential()
+with net.name_scope():
+    net.add(gluon.nn.Conv2D(channels=20, kernel_size=5, activation='relu'))
+    net.add(gluon.nn.MaxPool2D(pool_size=2, strides=2))
+    net.add(gluon.nn.Conv2D(channels=50, kernel_size=3, activation='relu'))
+    net.add(gluon.nn.MaxPool2D(pool_size=2, strides=2))
+    net.add(gluon.nn.Flatten())
+    net.add(MyDense())
+net.initialize(init=mx.init.Xavier())
+net.hybridize()
+net
+</code></pre>
+
+<pre><code>HybridSequential(
+  (0): Conv2D(20, kernel_size=(5, 5), stride=(1, 1))
+  (1): MaxPool2D(size=(2, 2), stride=(2, 2), padding=(0, 0), ceil_mode=False)
+  (2): Conv2D(50, kernel_size=(3, 3), stride=(1, 1))
+  (3): MaxPool2D(size=(2, 2), stride=(2, 2), padding=(0, 0), ceil_mode=False)
+  (4): Flatten
+  (5): MyDense(
+    (dense0): Dense(256, linear)
+    (dense1): Dense(10, linear)
+  )
+)
+</code></pre>
+
+<h2 id="5-训练">5. 训练</h2>
+
+<p>使用Adam优化算法，训练的速度会快点</p>
+
+<pre><code class="language-python">softmax_cross_entropy = gluon.loss.SoftmaxCrossEntropyLoss()
+trainer = gluon.Trainer(net.collect_params(), 'Adam', {'learning_rate': 0.008})
+</code></pre>
+
+<pre><code class="language-python">for epoch in range(5):
+    train_loss = 0.
+    train_acc = 0.
+    test_acc = 0.
+    for data, label in train_data:
+        data = nd.transpose(data,(0,3,1,2))
+        with autograd.record():
+            output = net(data)
+            loss = softmax_cross_entropy(output, label)
+        loss.backward()
+        trainer.step(batch_size)
+
+        train_loss += nd.mean(loss).asscalar()
+        train_acc += accuracy(output, label)
+
+    test_acc = evaluate_accuracy(test_data, net)
+    print(&quot;Epoch %d. Loss: %f, Train acc %f, Test acc %f&quot; % (
+            epoch, train_loss/len(train_data), train_acc/len(train_data), test_acc))
+</code></pre>
+
+<pre><code>Epoch 0. Loss: 0.498041, Train acc 0.817226, Test acc 0.865459
+Epoch 1. Loss: 0.312128, Train acc 0.884813, Test acc 0.894265
+Epoch 2. Loss: 0.274009, Train acc 0.898454, Test acc 0.898604
+Epoch 3. Loss: 0.247741, Train acc 0.906521, Test acc 0.914910
+Epoch 4. Loss: 0.226967, Train acc 0.913736, Test acc 0.914334
+</code></pre>
+
+<h2 id="6-保存成symbol格式的网络和参数-重点">6. 保存成Symbol格式的网络和参数（重点）</h2>
+
+<p><del>要注意保存网络参数的时候，需要<code>net.collect_params().save()</code>这样保存，而不是<code>net.save_params()</code>保存</del><br />
+最新版的mxnet已经有可以导出到symbol格式下的接口了。需要mxnet版本在20171015以上<br />
+下面示例代码也已经改成新版的保存，加载方式</p>
+
+<pre><code class="language-python">#新版本的保存方式
+net.export('Gluon_FashionMNIST')
+</code></pre>
+
+<h2 id="7-使用symbol加载网络并绑定">7. 使用Symbol加载网络并绑定</h2>
+
+<pre><code class="language-python">symnet = mx.symbol.load('Gluon_FashionMNIST-symbol.json')
+mod = mx.mod.Module(symbol=symnet, context=mx.cpu())
+mod.bind(data_shapes=[('data', (1, 1, 28, 28))])
+mod.load_params('Gluon_FashionMNIST-0000.params')
+Batch = namedtuple('Batch', ['data'])
+</code></pre>
+
+<h2 id="8-预测试试看效果">8. 预测试试看效果</h2>
+
+<pre><code class="language-python">img,label = fashion_test[random.randint(0, 60000)]
+data = img.transpose([2,0,1])
+data = data.reshape([1,1,28,28])
+</code></pre>
+
+<pre><code class="language-python">mod.forward(Batch([data]))
+out = mod.get_outputs()
+prob = out[0]
+predicted_labels = prob.argmax(axis=1)
+
+plt.imshow(img.reshape((28, 28)).asnumpy())
+plt.axis('off')
+plt.show()
+print('predicted labels:',get_text_labels(predicted_labels.asnumpy()))
+
+print('true labels:',get_text_labels([label]))
+</code></pre>
+
+<p><img src="/img/output_25_0.png" alt="png" /></p>
+
+<pre><code>predicted labels: ['pullover']
+true labels: ['pullover']
+</code></pre>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script> 
+    <div class="share">
+        
+
+        
+
+        
+        
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span> &copy; 2018 | 夏鲁豫 </span>
+                </p>
+                <p class="footer-copyright">
+                    <span>Powered by <a href="https://gohugo.io/">Hugo</a> And <a href="https://github.com/roryg/ghostwriter">Ghostwriter</a></span>
+                </p>
+                
+            </div>
+        </footer>
+
+        <script src="https://FierceX.github.io/js/jquery-1.11.3.min.js"></script>
+        <script src="https://FierceX.github.io/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="https://FierceX.github.io/js/scripts.js"></script>
+    </body>
+</html>
+
