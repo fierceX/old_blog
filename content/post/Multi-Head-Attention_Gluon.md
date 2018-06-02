@@ -122,7 +122,7 @@ class Multi_Head_Attention(nn.HybridBlock):
             Attention=list(self._children.values())[0],
             h=self.h)
 ```
-### 2.2 Position Embedding
+### 2.3 Position Embedding
 ``` python
 class Position_Embedding(nn.HybridBlock):
     def __init__(self, shape, **kwargs):
@@ -306,7 +306,7 @@ class SANet(gluon.HybridBlock):
             kqv = self.PE(kqv)
         return self.liner(self.droup(self.pool(self.MHA(kqv, kqv, kqv))))
 ```
-### 3.2 初始化并训练
+### 3.4 初始化并训练
 ``` python
 net = SANet(
     shape=(embeding_size, max_len), Vocad_len=len(vocab), h=8, Is_PE=False)
