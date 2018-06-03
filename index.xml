@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>FierceX</copyright>
-    <lastBuildDate>Sun, 03 Jun 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 04 Jun 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://FierceX.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Mxnet的C&#43;&#43;推断接口的使用</title>
+      <link>https://FierceX.github.io/post/mxnet_c--_predict/</link>
+      <pubDate>Mon, 04 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://FierceX.github.io/post/mxnet_c--_predict/</guid>
+      <description>Mxnet提供了比较简单清晰的C++推断接口，下面详细说明一下，并且用上篇的情感分析模型来测试一下。
+1. 主要函数 1.1 BufferFile类 BUfferFile类是用来读取训练完的参数文件和网络文件的，并且还能够读取Mxnet保存的NDArray文件，其定义在Mxnet的示例中
+class BufferFile { public: string file_path_; int length_; char* buffer_; explicit BufferFile(string file_path) :file_path_(file_path) { ifstream ifs(file_path.c_str(), ios::in | ios::binary); if (!ifs) { cerr &amp;lt;&amp;lt; &amp;quot;Can&#39;t open the file. Please check &amp;quot; &amp;lt;&amp;lt; file_path &amp;lt;&amp;lt; &amp;quot;. \n&amp;quot;; length_ = 0; buffer_ = NULL; return; } ifs.seekg(0, ios::end); length_ = ifs.tellg(); ifs.seekg(0, ios::beg); cout &amp;lt;&amp;lt; file_path.c_str() &amp;lt;&amp;lt; &amp;quot; ... &amp;quot; &amp;lt;&amp;lt; length_ &amp;lt;&amp;lt; &amp;quot; bytes\n&amp;quot;; buffer_ = new char[sizeof(char) * length_]; ifs.</description>
+    </item>
     
     <item>
       <title>使用Gluon实现Hulti Head Attention做情感分析</title>

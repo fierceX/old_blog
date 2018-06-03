@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Mxnet的C&#43;&#43;推断接口的使用 &middot; FierceX</title>
+        <meta name="description" content="Mxnet提供了比较简单清晰的C&#43;&#43;推断接口，下面详细说明一下，并且用上篇的情感分析模型来测试一下。
+1. 主要函数 1.1 BufferFile类 BUfferFile类是用来读取训练完的参数文件和网络文件的，并且还能够读取Mxnet保存的NDArray文件，其定义在Mxnet的示例中
+class BufferFile { public: string file_path_; int length_; char* buffer_; explicit BufferFile(string file_path) :file_path_(file_path) { ifstream ifs(file_path.c_str(), ios::in | ios::binary); if (!ifs) { cerr &lt;&lt; &quot;Can&#39;t open the file. Please check &quot; &lt;&lt; file_path &lt;&lt; &quot;. \n&quot;; length_ = 0; buffer_ = NULL; return; } ifs.seekg(0, ios::end); length_ = ifs.tellg(); ifs.seekg(0, ios::beg); cout &lt;&lt; file_path.c_str() &lt;&lt; &quot; ... &quot; &lt;&lt; length_ &lt;&lt; &quot; bytes\n&quot;; buffer_ = new char[sizeof(char) * length_]; ifs.">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.28" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="Mxnet的C&#43;&#43;推断接口的使用">
+<meta property="og:description" content="Mxnet提供了比较简单清晰的C&#43;&#43;推断接口，下面详细说明一下，并且用上篇的情感分析模型来测试一下。
+1. 主要函数 1.1 BufferFile类 BUfferFile类是用来读取训练完的参数文件和网络文件的，并且还能够读取Mxnet保存的NDArray文件，其定义在Mxnet的示例中
+class BufferFile { public: string file_path_; int length_; char* buffer_; explicit BufferFile(string file_path) :file_path_(file_path) { ifstream ifs(file_path.c_str(), ios::in | ios::binary); if (!ifs) { cerr &lt;&lt; &quot;Can&#39;t open the file. Please check &quot; &lt;&lt; file_path &lt;&lt; &quot;. \n&quot;; length_ = 0; buffer_ = NULL; return; } ifs.seekg(0, ios::end); length_ = ifs.tellg(); ifs.seekg(0, ios::beg); cout &lt;&lt; file_path.c_str() &lt;&lt; &quot; ... &quot; &lt;&lt; length_ &lt;&lt; &quot; bytes\n&quot;; buffer_ = new char[sizeof(char) * length_]; ifs.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://FierceX.github.io/post/mxnet_c--_predict/">
+        <link rel="stylesheet" href="https://FierceX.github.io/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                            </h1>
+                        
+                        <a class="button-square" href="https://FierceX.github.io/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/fiercex">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Email" title="Email" href="mailto:mailto:FierceX@outlook.com">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="/about/">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Mxnet的C&#43;&#43;推断接口的使用</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2018-06-04" itemprop="datePublished">Mon, Jun 4, 2018</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://FierceX.github.io" itemprop="url" rel="author">FierceX</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    <p>Mxnet提供了比较简单清晰的C++推断接口，下面详细说明一下，并且用上篇的情感分析模型来测试一下。</p>
+
+<h2 id="1-主要函数">1. 主要函数</h2>
+
+<h3 id="11-bufferfile类">1.1 BufferFile类</h3>
+
+<p>BUfferFile类是用来读取训练完的参数文件和网络文件的，并且还能够读取Mxnet保存的NDArray文件，其定义在Mxnet的示例中</p>
+
+<pre><code class="language-c++">class BufferFile {
+public:
+	string file_path_;
+	int length_;
+	char* buffer_;
+
+	explicit BufferFile(string file_path)
+		:file_path_(file_path) {
+
+		ifstream ifs(file_path.c_str(), ios::in | ios::binary);
+		if (!ifs) {
+			cerr &lt;&lt; &quot;Can't open the file. Please check &quot; &lt;&lt; file_path &lt;&lt; &quot;. \n&quot;;
+			length_ = 0;
+			buffer_ = NULL;
+			return;
+		}
+
+		ifs.seekg(0, ios::end);
+		length_ = ifs.tellg();
+		ifs.seekg(0, ios::beg);
+		cout &lt;&lt; file_path.c_str() &lt;&lt; &quot; ... &quot; &lt;&lt; length_ &lt;&lt; &quot; bytes\n&quot;;
+
+		buffer_ = new char[sizeof(char) * length_];
+		ifs.read(buffer_, length_);
+		ifs.close();
+	}
+
+	int GetLength() {
+		return length_;
+	}
+	char* GetBuffer() {
+		return buffer_;
+	}
+
+	~BufferFile() {
+		if (buffer_) {
+			delete[] buffer_;
+			buffer_ = NULL;
+		}
+	}
+};
+</code></pre>
+
+<h3 id="12-mxpredcreate">1.2 MXPredCreate</h3>
+
+<p>MXPredCreate是用来创建与Mxnet交互的Handle，通过这个Handle可以将数据送入网络并获取结果。</p>
+
+<pre><code class="language-C++">MXPredCreate (
+    const char * symbol_json_st, 
+    const void * param_bytes, 
+    int param_size, 
+    int dev_type, 
+    int dev_id, 
+    mx_uint num_input_nodes, 
+    const char ** input_keys, 
+    const mx_uint * input_shape_indptr, 
+    const mx_uint * input_shape_data, 
+    PredictorHandle * out )
+</code></pre>
+
+<p>参数</p>
+
+<ul>
+<li><strong>symbol_json_str</strong>  The JSON string of the symbol.<br></li>
+<li><strong>param_bytes</strong>  The in-memory raw bytes of parameter ndarray file.<br></li>
+<li><strong>param_size</strong>  The size of parameter ndarray file.<br></li>
+<li><strong>dev_type</strong>  The device type, 1: cpu, 2:gpu<br></li>
+<li><strong>dev_id</strong>  The device id of the predictor.<br></li>
+<li><strong>num_input_nodes</strong>  Number of input nodes to the net, For feedforward net, this is 1.<br></li>
+<li><strong>input_keys</strong>  The name of input argument. For feedforward net, this is {&quot;data&quot;}<br></li>
+<li><strong>input_shape_indptr</strong>  Index pointer of shapes of each input node. The length of this array = num_input_nodes + 1. For feedforward net that takes 4 dimensional input, this is {0, 4}.<br></li>
+<li><strong>input_shape_data</strong>  A flatted data of shapes of each input node. For feedforward net that takes 4 dimensional input, this is the shape data.<br></li>
+<li><strong>out</strong>  The created predictor handle.<br></li>
+</ul>
+
+<p>第一个和第二个为网络JSON内容和参数内容<br>
+<code>dev_type</code> 为设备类型，1是CPU，2是GPU<br>
+<code>dev_id</code> 是设备号，也就是说用哪个设备，如果你有很多个GPU，可以指定在某个GPU上。<br>
+<code>num_input_nodes</code> 是数据输入的个数，也就是说你的网络是但输入还是多输入<br>
+<code>input_keys</code> 是说明你的输入参数名称，默认的应该是data，当然你也可以指定，这是在训练的时候指定的<br>
+<code>input_shape_data</code> 是数据输入的尺寸，这和在网络定义的时候是一样的。<br>
+<code>input_shape_indptr</code> 是输入数据的指针索引，用来说明<code>input_shape_data</code>中的各个维度与输入的对应关系，比如如果数据的尺寸是</p>
+
+<pre><code class="language-c++">const mx_uint input_shape_data[4] = {1,3,224,224};
+</code></pre>
+
+<p>则<code>input_shape_indptr</code>则应该为</p>
+
+<pre><code class="language-c++">const mx_uint input_shape_indptr[3] = {
+    0,  // 输入的尺寸信息从input_shape_data的第0个位置开始, 到4结束: 1, 3, 224, 224
+    4};
+</code></pre>
+
+<p>如果是多个数据输入，比如网络需要两个输入，<code>input_shape_data</code>为</p>
+
+<pre><code class="language-c++">const mx_uint input_shape_data[8] = {
+    1, 3, 224, 224,    // 第一个输入的大小
+    1, 3, 224, 224     // 第二个输入的大小
+    };
+</code></pre>
+
+<p>则<code>input_shape_indptr</code>则应该为</p>
+
+<pre><code class="language-c++">const mx_uint input_shape_indptr[3] = {
+    0,  // 第一个输入的尺寸信息从input_shape_data的第0个位置开始, 到4结束: 1, 3, 224, 224
+    4,  // 第二个输入的尺寸信息从inptu_shape_data的第4个位置开始, 到8结束: 1, 3, 224, 224
+    8};
+</code></pre>
+
+<p><code>out</code>就是创建的Handle</p>
+
+<h3 id="13-把数据送入网络计算">1.3 把数据送入网络计算</h3>
+
+<p>把数据送入网络</p>
+
+<pre><code class="language-c++">MXPredSetInput (
+    PredictorHandle handle, 
+    const char * key, 
+    const mx_float * data, 
+    mx_uint size )
+</code></pre>
+
+<p>参数分别是</p>
+
+<ul>
+<li><strong>handle</strong> 用于和MXnet交互的Handle<br></li>
+<li><strong>key</strong> 数据输入参数的名称<br></li>
+<li><strong>data</strong> 需要输入的数据</li>
+<li><strong>size</strong> 数据大小<br></li>
+</ul>
+
+<p>前向传播计算结果</p>
+
+<pre><code class="language-c++">MXPredForward (PredictorHandle handle)
+</code></pre>
+
+<h3 id="14-获取网络计算结果">1.4 获取网络计算结果</h3>
+
+<p>获取输出的尺寸</p>
+
+<pre><code class="language-c++">MXPredGetOutputShape (
+    PredictorHandle handle, 
+    mx_uint index, 
+    mx_uint ** shape_data, 
+    mx_uint * shape_ndim )
+</code></pre>
+
+<p>参数分别是</p>
+
+<ul>
+<li><strong>handle</strong></li>
+<li><strong>index</strong> 网络输出的节点的索引，只有一个的话就设为0</li>
+<li><strong>shape_data</strong> 用于保存数据的形状</li>
+<li><strong>shape_ndin</strong> 用于保存数据的尺寸<br></li>
+</ul>
+
+<p>获取网络输出的结果</p>
+
+<pre><code class="language-c++">MXPredGetOutput (
+    PredictorHandle handle, 
+    mx_uint index, 
+    mx_float * data, 
+    mx_uint size )
+</code></pre>
+
+<p>参数分别</p>
+
+<ul>
+<li><strong>handle</strong></li>
+<li><strong>index</strong> 输出节点的索引和<code>MXPredGetOutputShape</code>的一样，只有一个的话就设为0<br></li>
+<li><strong>data</strong> 获取的数据</li>
+<li><strong>size</strong> 数据的大小<br></li>
+</ul>
+
+<h2 id="2-使用c接口来进行情感分析的预测">2. 使用C++接口来进行情感分析的预测</h2>
+
+<h3 id="21-创建hadnle">2.1 创建Hadnle</h3>
+
+<pre><code class="language-c++">string json_file = &quot;net-symbol.json&quot;;
+string param_file = &quot;net-0000.params&quot;;
+BufferFile json_data(model_json);
+BufferFile param_data(model_params);
+
+mx_uint num_input_nodes = 1;
+const char* input_key[1] = { &quot;data&quot; };
+const char** input_keys = input_key;
+
+int input_shape[1] = { 100 };
+const mx_uint input_shape_indptr[2] = { 0,2 };
+const mx_uint input_shape_data[2] = { 1,static_cast&lt;mx_uint&gt;(input_shape[0]) };
+input_data_size = input_shape[0];
+PredictorHandle pred_hnd = 0;
+
+int dev_type = 1;
+int dev_id = 1;
+MXPredCreate(static_cast&lt;const char*&gt;(json_data.GetBuffer()),
+    static_cast&lt;const char*&gt;(param_data.GetBuffer()),
+    static_cast&lt;int&gt;(param_data.GetLength()),
+    dev_type,
+    dev_id,
+    num_input_nodes,
+    input_keys,
+    input_shape_indptr,
+    input_shape_data,
+    &amp;pred_hnd);
+assert(pred_hnd);
+</code></pre>
+
+<h3 id="22-输入送入网络并获取数据">2.2 输入送入网络并获取数据</h3>
+
+<pre><code class="language-c++">MXPredSetInput(pred_hnd, &quot;data&quot;, data.data(), input_data_size);
+MXPredForward(pred_hnd);
+mx_uint output_index = 0;
+
+mx_uint* shape = nullptr;
+mx_uint shape_len;
+
+// Get Output Result
+MXPredGetOutputShape(pred_hnd, output_index, &amp;shape, &amp;shape_len);
+
+size_t size = 1;
+for (mx_uint i = 0; i &lt; shape_len; ++i) { size *= shape[i]; }
+
+vector&lt;float&gt; output(size);
+
+MXPredGetOutput(pred_hnd, output_index, &amp;(output[0]), static_cast&lt;mx_uint&gt;(size));
+</code></pre>
+
+<h3 id="23-辅助代码">2.3 辅助代码</h3>
+
+<p>将网络从gluon导出</p>
+
+<pre><code class="language-python">net.export('net')
+</code></pre>
+
+<p>把数据保存成csv</p>
+
+<pre><code class="language-python">f = open('test.csv','w',encoding='utf-8')
+a = x_test[0].asnumpy()
+s = ','.join([str(x) for x in a])
+f.write(s)
+f.close()
+</code></pre>
+
+<p>c++中读取csv文件的内容</p>
+
+<pre><code class="language-c++">ifstream fin(&quot;test.csv&quot;);
+string line;
+vector&lt;float&gt; data;
+while (getline(fin, line)) {
+
+    istringstream sin(line);
+    string field;
+    while (getline(sin, field, ',')) {
+        data.push_back(atof(field.c_str()));
+    }
+}
+fin.close();
+</code></pre>
+
+<p>读取Python中保存的NDArray数据</p>
+
+<pre><code class="language-c++">string nd_file = &quot;test.nd&quot;;
+
+const mx_float* nd_data = nullptr;
+NDListHandle nd_hnd = nullptr;
+BufferFile nd_buf(nd_file);
+
+if (nd_buf.GetLength() &gt; 0) {
+    mx_uint nd_index = 0;
+    mx_uint nd_len;
+    const mx_uint* nd_shape = nullptr;
+    const char* nd_key = nullptr;
+    mx_uint nd_ndim = 0;
+
+    MXNDListCreate(static_cast&lt;const char*&gt;(nd_buf.GetBuffer()),
+        static_cast&lt;int&gt;(nd_buf.GetLength()),
+        &amp;nd_hnd, &amp;nd_len);
+
+    MXNDListGet(nd_hnd, nd_index, &amp;nd_key, &amp;nd_data, &amp;nd_shape, &amp;nd_ndim);
+}
+</code></pre>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script> 
+    <div class="share">
+        
+
+        
+
+        
+        
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span> &copy; 2018 | 夏鲁豫 </span>
+                </p>
+                <p class="footer-copyright">
+                    <span>Powered by <a href="https://gohugo.io/">Hugo</a> And <a href="https://github.com/roryg/ghostwriter">Ghostwriter</a></span>
+                </p>
+                
+            </div>
+        </footer>
+
+        <script src="https://FierceX.github.io/js/jquery-1.11.3.min.js"></script>
+        <script src="https://FierceX.github.io/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="https://FierceX.github.io/js/scripts.js"></script>
+    </body>
+</html>
+
