@@ -1,9 +1,9 @@
 ---
-title: "CentOS安装TensorFlow笔记"
+title: "CentOS安装TensorFlow/Mxnet笔记"
 date: 2018-05-30
 draft: true
 ---
-最近公司需要在多台CentOS上部署TensorFlow用来并行推断，因为CentOS上的一些库比较老旧，没法安装TensorFlow，所以将安装流程记录下来，以备后用。
+最近公司需要在多台CentOS上部署深度学习库，但是发现CentOS上的一些库比较老旧，所以需要对CentOS进行升级。
 ### 1. 安装miniconda版本的python3
 ``` bash
 >> wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -45,8 +45,9 @@ CXXABI_1.3.3
 >> ln -s /usr/lib64/libstdc++.so.6.0.24 /usr/lib64/libstdc++.so.6
 ```
 
-### 4. 安装tensorflow
+### 4. 安装tensorflow/Mxnet
 ``` bash
->> pip install tensorflow==1.4.0 flask
+>> pip install tensorflow==1.4.0
+>> pip install mxnet
 ```
 
