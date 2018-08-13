@@ -6,10 +6,12 @@ draft: true
 折腾这个主要原因是在部署项目的时候，客户表示生产环境没有GCC编译工具链，不会给你升级系统库，也不让用docker，说你自己在实验机器上编译好然后搬到生产环境上的机器上吧。然后我无Fack可说。  
 下面是折腾了好几天总结出来解决方案。由于目标机器上的GCC版本过低，所以这次也对GCC进行了升级。  
 ## 1. GCC的编译升级
-GCC编译安装依赖以下三个库：
+GCC编译安装依赖以下三个库:
+
 - gmp
 - mpfr
 - mpc  
+
 ### 1.1 自动配置
 运行`contrib/download_prerequisites`这个脚本，可以自动下载配置依赖，可以省很多精力时间
 ```bash
@@ -52,7 +54,7 @@ make && make install
 ```bash
 $HOME/install/glibc/lib/ld-2.17.so --library-path $HOME/install/glibc/lib:$HOME/install/gcc-5.5.0/lib64:/lib64:/lib:/usr/lib64:/usr/lib <command>
 ```
-需要注意的是，`<command>` 必须是可执行文件的绝对路径。但是有个取巧的办法是用\`which \<command\>\`
+需要注意的是，`<command>` 必须是可执行文件的绝对路径。但是有个取巧的办法是用`` `which <command>` ``
 ``` bash
 $HOME/install/glibc/lib/ld-2.17.so --library-path $HOME/install/glibc/lib:$HOME/install/gcc-5.5.0/lib64:/lib64:/lib:/usr/lib64:/usr/lib `which ls`
 ```
