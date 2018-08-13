@@ -3,8 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>CentOS安装TensorFlow笔记 &middot; FierceX</title>
-        <meta name="description" content="最近公司需要在多台CentOS上部署TensorFlow用来并行推断，因为CentOS上的一些库比较老旧，没法安装TensorFlow，所以将安装流程记录下来，以备后用。
+        <title>CentOS安装TensorFlow/Mxnet笔记 &middot; FierceX</title>
+        <meta name="description" content="最近公司需要在多台CentOS上部署深度学习库，但是发现CentOS上的一些库比较老旧，所以需要对CentOS进行升级。
 1. 安装miniconda版本的python3 &gt;&gt; wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh &gt;&gt; bash Miniconda3-latest-Linux-x86_64.sh  安装的时候会询问一些东西，一律yes和回车就行
 2. 检查glibc共享库版本 &gt;&gt; ll /lib64/libc.so.6 lrwxrwxrwx. 1 root root 12 Jun 13 2015 /lib64/libc.so.6 -&gt; libc-2.12.so  如果是版本低于2.17,则需要手动编译安装glibc
 &gt;&gt; wget https://ftp.gnu.org/gnu/glibc/glibc-2.17.tar.gz &gt;&gt; tar -xvf glibc-2.17.tar.gz &gt;&gt; cd glibc-2.17 &gt;&gt; mkdir build &gt;&gt; cd build &gt;&gt; ../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin &gt;&gt; make &amp;&amp; make install  3. 检查libstdc&#43;&#43;.so.6版本 &gt;&gt; strings /usr/lib64/libstdc&#43;&#43;.so.6 | grep &#39;CXXABI&#39; CXXABI_1.3 CXXABI_1.3.1 CXXABI_1.3.2 CXXABI_1.">
@@ -13,8 +13,8 @@
         <meta name="generator" content="Hugo 0.28" />
         <meta name="robots" content="index,follow">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta property="og:title" content="CentOS安装TensorFlow笔记">
-<meta property="og:description" content="最近公司需要在多台CentOS上部署TensorFlow用来并行推断，因为CentOS上的一些库比较老旧，没法安装TensorFlow，所以将安装流程记录下来，以备后用。
+        <meta property="og:title" content="CentOS安装TensorFlow/Mxnet笔记">
+<meta property="og:description" content="最近公司需要在多台CentOS上部署深度学习库，但是发现CentOS上的一些库比较老旧，所以需要对CentOS进行升级。
 1. 安装miniconda版本的python3 &gt;&gt; wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh &gt;&gt; bash Miniconda3-latest-Linux-x86_64.sh  安装的时候会询问一些东西，一律yes和回车就行
 2. 检查glibc共享库版本 &gt;&gt; ll /lib64/libc.so.6 lrwxrwxrwx. 1 root root 12 Jun 13 2015 /lib64/libc.so.6 -&gt; libc-2.12.so  如果是版本低于2.17,则需要手动编译安装glibc
 &gt;&gt; wget https://ftp.gnu.org/gnu/glibc/glibc-2.17.tar.gz &gt;&gt; tar -xvf glibc-2.17.tar.gz &gt;&gt; cd glibc-2.17 &gt;&gt; mkdir build &gt;&gt; cd build &gt;&gt; ../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin &gt;&gt; make &amp;&amp; make install  3. 检查libstdc&#43;&#43;.so.6版本 &gt;&gt; strings /usr/lib64/libstdc&#43;&#43;.so.6 | grep &#39;CXXABI&#39; CXXABI_1.3 CXXABI_1.3.1 CXXABI_1.3.2 CXXABI_1.">
@@ -76,7 +76,7 @@
 <div class="container">
     <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
         <header class="post-header">
-    <h1 class="post-title" itemprop="name headline">CentOS安装TensorFlow笔记</h1>
+    <h1 class="post-title" itemprop="name headline">CentOS安装TensorFlow/Mxnet笔记</h1>
     
     <p class="post-date">
         <span>Published <time datetime="2018-05-30" itemprop="datePublished">Wed, May 30, 2018</time></span>
@@ -94,7 +94,7 @@
 
     
 
-<p>最近公司需要在多台CentOS上部署TensorFlow用来并行推断，因为CentOS上的一些库比较老旧，没法安装TensorFlow，所以将安装流程记录下来，以备后用。</p>
+<p>最近公司需要在多台CentOS上部署深度学习库，但是发现CentOS上的一些库比较老旧，所以需要对CentOS进行升级。</p>
 
 <h3 id="1-安装miniconda版本的python3">1. 安装miniconda版本的python3</h3>
 
@@ -143,9 +143,10 @@ CXXABI_1.3.3
 &gt;&gt; ln -s /usr/lib64/libstdc++.so.6.0.24 /usr/lib64/libstdc++.so.6
 </code></pre>
 
-<h3 id="4-安装tensorflow">4. 安装tensorflow</h3>
+<h3 id="4-安装tensorflow-mxnet">4. 安装tensorflow/Mxnet</h3>
 
-<pre><code class="language-bash">&gt;&gt; pip install tensorflow==1.4.0 flask
+<pre><code class="language-bash">&gt;&gt; pip install tensorflow==1.4.0
+&gt;&gt; pip install mxnet
 </code></pre>
 
 </div>

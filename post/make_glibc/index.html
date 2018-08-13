@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>无ROOT权限更新Glibc库并调用 &middot; FierceX</title>
+        <meta name="description" content="折腾这个主要原因是在部署项目的时候，客户表示生产环境没有GCC编译工具链，不会给你升级系统库，也不让用docker，说你自己在实验机器上编译好然后搬到生产环境上的机器上吧。然后我无Fack可说。
+下面是折腾了好几天总结出来解决方案。由于目标机器上的GCC版本过低，所以这次也对GCC进行了升级。
+1. GCC的编译升级 GCC编译安装依赖以下三个库： - gmp - mpfr - mpc
+1.1 自动配置 运行contrib/download_prerequisites这个脚本，可以自动下载配置依赖，可以省很多精力时间
+tar -xzvf gcc-5.5.0.tar.gz cd gcc-5.5.0 ./contrib/download_prerequisites  1.2 编译安装 然后编译安装
+mkdir gcc-build cd gcc-build ../configure --prefix=$HOME/install/gcc-5.5.0 -enable-checking=release -enable-languages=c,c&#43;&#43; -disable-multilib make -j4 make install  2. 使用新的GCC编译Glibc 需要注意的是，上一步编译的GCC需要把bin文件夹和lib文件夹键入环境变量
+export PATH=$HOME/install/gcc-5.5.0/bin:$PATH export LIBRARY_PATH=$HOME/install/gcc-5.5.0/lib64  查看一下是否能够找到新的GCC
+gcc -v  下面就是编译安装Glibc
+tar -xvf glibc-2.17.tar.gz cd glibc-2.17 mkdir build cd build ../configure --prefix=$HOME/install/glibc --disable-profile --enable-add-ons make &amp;&amp; make install  3.">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="generator" content="Hugo 0.28" />
+        <meta name="robots" content="index,follow">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="og:title" content="无ROOT权限更新Glibc库并调用">
+<meta property="og:description" content="折腾这个主要原因是在部署项目的时候，客户表示生产环境没有GCC编译工具链，不会给你升级系统库，也不让用docker，说你自己在实验机器上编译好然后搬到生产环境上的机器上吧。然后我无Fack可说。
+下面是折腾了好几天总结出来解决方案。由于目标机器上的GCC版本过低，所以这次也对GCC进行了升级。
+1. GCC的编译升级 GCC编译安装依赖以下三个库： - gmp - mpfr - mpc
+1.1 自动配置 运行contrib/download_prerequisites这个脚本，可以自动下载配置依赖，可以省很多精力时间
+tar -xzvf gcc-5.5.0.tar.gz cd gcc-5.5.0 ./contrib/download_prerequisites  1.2 编译安装 然后编译安装
+mkdir gcc-build cd gcc-build ../configure --prefix=$HOME/install/gcc-5.5.0 -enable-checking=release -enable-languages=c,c&#43;&#43; -disable-multilib make -j4 make install  2. 使用新的GCC编译Glibc 需要注意的是，上一步编译的GCC需要把bin文件夹和lib文件夹键入环境变量
+export PATH=$HOME/install/gcc-5.5.0/bin:$PATH export LIBRARY_PATH=$HOME/install/gcc-5.5.0/lib64  查看一下是否能够找到新的GCC
+gcc -v  下面就是编译安装Glibc
+tar -xvf glibc-2.17.tar.gz cd glibc-2.17 mkdir build cd build ../configure --prefix=$HOME/install/glibc --disable-profile --enable-add-ons make &amp;&amp; make install  3.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://FierceX.github.io/post/make_glibc/">
+        <link rel="stylesheet" href="https://FierceX.github.io/dist/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        
+    </head>
+    <body>
+        
+
+        <div id="wrapper">
+            <header class="site-header">
+                <div class="container">
+                    <div class="site-title-wrapper">
+                        
+                            <h1 class="site-title">
+                                <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                            </h1>
+                        
+                        <a class="button-square" href="https://FierceX.github.io/index.xml"><i class="fa fa-rss"></i></a>
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Github" title="Github" href="https://github.com/fiercex">
+                                <i class="fa fa-github-alt"></i>
+                            </a>
+                        
+                        
+                        
+                        
+                        
+                            <a class="button-square button-social hint--top" data-hint="Email" title="Email" href="mailto:mailto:FierceX@outlook.com">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        
+                    </div>
+
+                    <ul class="site-nav">
+                        
+    <li class="site-nav-item">
+        <a title="Blog" href="/">Blog</a>
+    </li>
+
+    <li class="site-nav-item">
+        <a title="About" href="/about/">About</a>
+    </li>
+
+                    </ul>
+                </div>
+            </header>
+
+            <div id="container">
+
+
+<div class="container">
+    <article class="post-container" itemscope="" itemtype="http://schema.org/BlogPosting">
+        <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">无ROOT权限更新Glibc库并调用</h1>
+    
+    <p class="post-date">
+        <span>Published <time datetime="2018-08-13" itemprop="datePublished">Mon, Aug 13, 2018</time></span>
+        <span>by</span>
+        <span itemscope="" itemprop="author" itemtype="https://schema.org/Person">
+            <span itemprop="name">
+                <a href="https://FierceX.github.io" itemprop="url" rel="author">FierceX</a>
+            </span>
+        </span>
+    </p>
+</header>
+
+        <div class="post-content clearfix" itemprop="articleBody">
+    
+
+    
+
+<p>折腾这个主要原因是在部署项目的时候，客户表示生产环境没有GCC编译工具链，不会给你升级系统库，也不让用docker，说你自己在实验机器上编译好然后搬到生产环境上的机器上吧。然后我无Fack可说。<br />
+下面是折腾了好几天总结出来解决方案。由于目标机器上的GCC版本过低，所以这次也对GCC进行了升级。</p>
+
+<h2 id="1-gcc的编译升级">1. GCC的编译升级</h2>
+
+<p>GCC编译安装依赖以下三个库：
+- gmp
+- mpfr
+- mpc</p>
+
+<h3 id="1-1-自动配置">1.1 自动配置</h3>
+
+<p>运行<code>contrib/download_prerequisites</code>这个脚本，可以自动下载配置依赖，可以省很多精力时间</p>
+
+<pre><code class="language-bash">tar -xzvf gcc-5.5.0.tar.gz
+cd gcc-5.5.0
+./contrib/download_prerequisites
+</code></pre>
+
+<h3 id="1-2-编译安装">1.2 编译安装</h3>
+
+<p>然后编译安装</p>
+
+<pre><code class="language-bash">mkdir gcc-build
+cd gcc-build
+../configure --prefix=$HOME/install/gcc-5.5.0 -enable-checking=release -enable-languages=c,c++ -disable-multilib
+make -j4
+make install
+</code></pre>
+
+<h2 id="2-使用新的gcc编译glibc">2. 使用新的GCC编译Glibc</h2>
+
+<p>需要注意的是，上一步编译的GCC需要把bin文件夹和lib文件夹键入环境变量</p>
+
+<pre><code class="language-bash">export PATH=$HOME/install/gcc-5.5.0/bin:$PATH
+export LIBRARY_PATH=$HOME/install/gcc-5.5.0/lib64
+</code></pre>
+
+<p>查看一下是否能够找到新的GCC</p>
+
+<pre><code>gcc -v
+</code></pre>
+
+<p>下面就是编译安装Glibc</p>
+
+<pre><code class="language-bash">tar -xvf glibc-2.17.tar.gz
+cd glibc-2.17
+mkdir build
+cd build
+../configure --prefix=$HOME/install/glibc --disable-profile --enable-add-ons
+make &amp;&amp; make install
+</code></pre>
+
+<h2 id="3-使用新的glibc调用程序">3. 使用新的Glibc调用程序</h2>
+
+<p>在安装目录下的<code>lib</code>目录下有个<code>ld-2.17.so</code>文件，这个其实是一个程序而不是一个动态链接库，下面我们就要用这个程序来调用启动需要新Glibc库的程序，调用方式如下：</p>
+
+<pre><code class="language-bash">$HOME/install/glibc/lib/ld-2.17.so --library-path $HOME/install/glibc/lib:$HOME/install/gcc-5.5.0/lib64:/lib64:/lib:/usr/lib64:/usr/lib &lt;command&gt;
+</code></pre>
+
+<p>需要注意的是，<code>&lt;command&gt;</code> 必须是可执行文件的绝对路径。但是有个取巧的办法是用`which &lt;command&gt;`</p>
+
+<pre><code class="language-bash">$HOME/install/glibc/lib/ld-2.17.so --library-path $HOME/install/glibc/lib:$HOME/install/gcc-5.5.0/lib64:/lib64:/lib:/usr/lib64:/usr/lib `which ls`
+</code></pre>
+
+<p>那么为了方便，可以上面的调用方式写在一个脚本里<br />
+新建一个脚本文件<code>new_glibc</code>，写入以下内容</p>
+
+<pre><code class="language-bash">$HOME/install/glibc/lib/ld-2.17.so --library-path $HOME/install/glibc/lib:$HOME/install/gcc-5.5.0/lib64:/lib64:/lib:/usr/lib64:/usr/lib `which $1`
+</code></pre>
+
+<p>添加可执行权限，并且把<code>new_glibc</code>所在路径添加到<code>PATH</code></p>
+
+<pre><code class="language-bash">chmod +x new_glibc
+export PATH=$(pwd):$PATH
+</code></pre>
+
+<p>然后就可以这样使用了</p>
+
+<pre><code class="language-bash">new_glibc ls
+</code></pre>
+
+<p><strong>注: glibc2.17使用这种方式调用anaconda python3.6会出现段错误。但是升级系统库则不会。</strong></p>
+
+<h2 id="4-源码安装python3">4. 源码安装Python3</h2>
+
+<p>由于上面的调用方式经试验，无法调用anaconda版的python3.6，所以我们需要手动编译Python3，不怕，gcc都编译了还怕啥。<br />
+确保新版的GCC的相关东西都在环境变量里。</p>
+
+<pre><code class="language-bash">wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz
+tar zxvf Python-3.6.6.tgz
+cd Python-3.6.6
+./configure --prefix=$HOME/install/python3
+make
+make install
+</code></pre>
+
+<p>编译好后把Python的路径添加到PATH中</p>
+
+<pre><code class="language-bash">export PATH=$HOME/install/python3/bin:$PATH
+</code></pre>
+
+<p>接下来就是安装需要的工具，比如Mxnet</p>
+
+<pre><code class="language-bash">pip3 install mxnet
+</code></pre>
+
+<p>然后就可以用上述的方式调用了</p>
+
+<pre><code class="language-bash">new_glibc python3
+</code></pre>
+
+<p>进入python3环境后，试试<code>import mxnet</code>，看看能不能成功</p>
+
+<h2 id="5-移植">5. 移植</h2>
+
+<p>将上面编译好的glibc库和gcc库移植到新机器即可，调用方式和上面一样。注意环境变量的路径。</p>
+
+<hr />
+
+<h2 id="6-gunicorn部署方案">6. Gunicorn部署方案</h2>
+
+<p>上述方式在调用安装到python中的一些应用时会报错，比如<code>new_glibc pip3</code>就会报错，具体原因不是太清楚，一般来说不会这样使用，但是如果使用<code>gunicorn</code>部署python项目的话，就会出现这个问题。针对<code>gunicorn</code>也是有解决方案的。<br />
+在查看<code>gunicorn</code>源码后，发现命令行调用后主要是通过<code>gunicorn/app/wsgiapp.py</code>下的<code>run</code>方法，那么解决方案就来了，把这个文件单独拿出来，然后这样运行</p>
+
+<pre><code class="language-bash">new_glibc python3 wsgiapp.py .....
+</code></pre>
+
+</div>
+
+        <footer class="post-footer clearfix">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/contrib/auto-render.min.js"></script> 
+    <div class="share">
+        
+
+        
+
+        
+        
+    </div>
+</footer>
+
+        
+    </article>
+</div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="site-title-wrapper">
+                    <h1 class="site-title">
+                        <a title="FierceX" href="https://FierceX.github.io/">FierceX</a>
+                    </h1>
+                    <a class="button-square button-jump-top js-jump-top" href="#">
+                        <i class="fa fa-angle-up"></i>
+                    </a>
+                </div>
+
+                <p class="footer-copyright">
+                    <span> &copy; 2018 | 夏鲁豫 </span>
+                </p>
+                <p class="footer-copyright">
+                    <span>Powered by <a href="https://gohugo.io/">Hugo</a> And <a href="https://github.com/roryg/ghostwriter">Ghostwriter</a></span>
+                </p>
+                
+            </div>
+        </footer>
+
+        <script src="https://FierceX.github.io/js/jquery-1.11.3.min.js"></script>
+        <script src="https://FierceX.github.io/js/jquery.fitvids.js"></script>
+        
+        
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        
+        
+        <script src="https://FierceX.github.io/js/scripts.js"></script>
+    </body>
+</html>
+

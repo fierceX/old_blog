@@ -7,10 +7,27 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>FierceX</copyright>
-    <lastBuildDate>Mon, 04 Jun 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 13 Aug 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://FierceX.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>无ROOT权限更新Glibc库并调用</title>
+      <link>https://FierceX.github.io/post/make_glibc/</link>
+      <pubDate>Mon, 13 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://FierceX.github.io/post/make_glibc/</guid>
+      <description>折腾这个主要原因是在部署项目的时候，客户表示生产环境没有GCC编译工具链，不会给你升级系统库，也不让用docker，说你自己在实验机器上编译好然后搬到生产环境上的机器上吧。然后我无Fack可说。
+下面是折腾了好几天总结出来解决方案。由于目标机器上的GCC版本过低，所以这次也对GCC进行了升级。
+1. GCC的编译升级 GCC编译安装依赖以下三个库： - gmp - mpfr - mpc
+1.1 自动配置 运行contrib/download_prerequisites这个脚本，可以自动下载配置依赖，可以省很多精力时间
+tar -xzvf gcc-5.5.0.tar.gz cd gcc-5.5.0 ./contrib/download_prerequisites  1.2 编译安装 然后编译安装
+mkdir gcc-build cd gcc-build ../configure --prefix=$HOME/install/gcc-5.5.0 -enable-checking=release -enable-languages=c,c++ -disable-multilib make -j4 make install  2. 使用新的GCC编译Glibc 需要注意的是，上一步编译的GCC需要把bin文件夹和lib文件夹键入环境变量
+export PATH=$HOME/install/gcc-5.5.0/bin:$PATH export LIBRARY_PATH=$HOME/install/gcc-5.5.0/lib64  查看一下是否能够找到新的GCC
+gcc -v  下面就是编译安装Glibc
+tar -xvf glibc-2.17.tar.gz cd glibc-2.17 mkdir build cd build ../configure --prefix=$HOME/install/glibc --disable-profile --enable-add-ons make &amp;amp;&amp;amp; make install  3.</description>
+    </item>
     
     <item>
       <title>Mxnet的C&#43;&#43;推断接口的使用</title>
@@ -46,12 +63,12 @@ class BufferFile { public: string file_path_; int length_; char* buffer_; explic
     </item>
     
     <item>
-      <title>CentOS安装TensorFlow笔记</title>
+      <title>CentOS安装TensorFlow/Mxnet笔记</title>
       <link>https://FierceX.github.io/post/centos_install_tf/</link>
       <pubDate>Wed, 30 May 2018 00:00:00 +0000</pubDate>
       
       <guid>https://FierceX.github.io/post/centos_install_tf/</guid>
-      <description>最近公司需要在多台CentOS上部署TensorFlow用来并行推断，因为CentOS上的一些库比较老旧，没法安装TensorFlow，所以将安装流程记录下来，以备后用。
+      <description>最近公司需要在多台CentOS上部署深度学习库，但是发现CentOS上的一些库比较老旧，所以需要对CentOS进行升级。
 1. 安装miniconda版本的python3 &amp;gt;&amp;gt; wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh &amp;gt;&amp;gt; bash Miniconda3-latest-Linux-x86_64.sh  安装的时候会询问一些东西，一律yes和回车就行
 2. 检查glibc共享库版本 &amp;gt;&amp;gt; ll /lib64/libc.so.6 lrwxrwxrwx. 1 root root 12 Jun 13 2015 /lib64/libc.so.6 -&amp;gt; libc-2.12.so  如果是版本低于2.17,则需要手动编译安装glibc
 &amp;gt;&amp;gt; wget https://ftp.gnu.org/gnu/glibc/glibc-2.17.tar.gz &amp;gt;&amp;gt; tar -xvf glibc-2.17.tar.gz &amp;gt;&amp;gt; cd glibc-2.17 &amp;gt;&amp;gt; mkdir build &amp;gt;&amp;gt; cd build &amp;gt;&amp;gt; ../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin &amp;gt;&amp;gt; make &amp;amp;&amp;amp; make install  3. 检查libstdc++.so.6版本 &amp;gt;&amp;gt; strings /usr/lib64/libstdc++.so.6 | grep &#39;CXXABI&#39; CXXABI_1.3 CXXABI_1.3.1 CXXABI_1.3.2 CXXABI_1.</description>
