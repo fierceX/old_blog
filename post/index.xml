@@ -20,8 +20,9 @@
       <guid>https://FierceX.github.io/post/make_glibc/</guid>
       <description>折腾这个主要原因是在部署项目的时候，客户表示生产环境没有GCC编译工具链，不会给你升级系统库，也不让用docker，说你自己在实验机器上编译好然后搬到生产环境上的机器上吧。然后我无Fack可说。
 下面是折腾了好几天总结出来解决方案。由于目标机器上的GCC版本过低，所以这次也对GCC进行了升级。
-1. GCC的编译升级 GCC编译安装依赖以下三个库： - gmp - mpfr - mpc
-1.1 自动配置 运行contrib/download_prerequisites这个脚本，可以自动下载配置依赖，可以省很多精力时间
+1. GCC的编译升级 GCC编译安装依赖以下三个库:
+ gmp mpfr mpc
+  1.1 自动配置 运行contrib/download_prerequisites这个脚本，可以自动下载配置依赖，可以省很多精力时间
 tar -xzvf gcc-5.5.0.tar.gz cd gcc-5.5.0 ./contrib/download_prerequisites  1.2 编译安装 然后编译安装
 mkdir gcc-build cd gcc-build ../configure --prefix=$HOME/install/gcc-5.5.0 -enable-checking=release -enable-languages=c,c++ -disable-multilib make -j4 make install  2. 使用新的GCC编译Glibc 需要注意的是，上一步编译的GCC需要把bin文件夹和lib文件夹键入环境变量
 export PATH=$HOME/install/gcc-5.5.0/bin:$PATH export LIBRARY_PATH=$HOME/install/gcc-5.5.0/lib64  查看一下是否能够找到新的GCC
